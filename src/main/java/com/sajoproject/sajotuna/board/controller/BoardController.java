@@ -1,7 +1,7 @@
-package com.sajoproject.sajotuna.board;
+package com.sajoproject.sajotuna.board.controller;
 
 public class BoardController {
   public void zz(){
-      
+
   }
 }
