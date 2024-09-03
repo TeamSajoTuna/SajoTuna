@@ -3,13 +3,13 @@ package com.sajoproject.sajotuna.user.service;
 import com.sajoproject.sajotuna.config.JwtUtil;
 import com.sajoproject.sajotuna.config.PasswordEncoder;
 import com.sajoproject.sajotuna.enums.UserRole;
-import com.sajoproject.sajotuna.exception.ForbiddenException;
-import com.sajoproject.sajotuna.excption.CustomException;
-import com.sajoproject.sajotuna.excption.ErrorCode;
+import com.sajoproject.sajotuna.exception.Conflict;
+import com.sajoproject.sajotuna.exception.UnAuthorized;
+import com.sajoproject.sajotuna.exception.Forbidden;
+import com.sajoproject.sajotuna.exception.UserNotFoundException;
 import com.sajoproject.sajotuna.user.dto.userGetProfileDto.GetProfileResponseDto;
 import com.sajoproject.sajotuna.user.dto.userSignInDto.SigninRequestDto;
 import com.sajoproject.sajotuna.user.dto.userSignupDto.SignupRequestDto;
-import com.sajoproject.sajotuna.user.dto.userSignupDto.SignupResponseDto;
 import com.sajoproject.sajotuna.user.dto.userUpdateProfileDto.UpdateRequestDto;
 import com.sajoproject.sajotuna.user.dto.userUpdateProfileDto.UpdateResponseDto;
 import com.sajoproject.sajotuna.user.entity.User;
@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -35,7 +36,7 @@ public class UserService {
     @Transactional
     public String signup(SignupRequestDto signupRequestDto) {
         if (userRepository.existsByEmail(signupRequestDto.getEmail())) {
-            throw new IllegalArgumentException("중복된 이메일입니다.");
+            throw new Conflict("중복된 이메일입니다.");
         }
         String encodedPassword = passwordEncoder.encode(signupRequestDto.getPw());
         UserRole userRole = convertToUserRole(signupRequestDto.getUserRole());
@@ -62,10 +63,10 @@ public class UserService {
     @Transactional
     public String signIn(SigninRequestDto requestDto) {
         User user = userRepository.findByEmail(requestDto.getEmail()).orElseThrow(
-                ()->new CustomException(ErrorCode.USER_NOT_FOUND));
+                ()-> new UserNotFoundException("not found"));
         // 로그인 시 이메일과 비밀번호가 일치하지 않을 경우 401 반환
-        if(!passwordEncoder.matches(requestDto.getPw(), user.getPw())) {
-            throw new CustomException(ErrorCode.USER_NOT_FOUND);
+        if(!(user.getEmail().equalsIgnoreCase(requestDto.getEmail())) || !passwordEncoder.matches(requestDto.getPw(), user.getPw())) {
+            throw new UnAuthorized("incorrect email or password");
         }
         return jwtUtil.createToken(
                 user.getUserId(),
@@ -151,7 +152,7 @@ public class UserService {
     public void deleteUser(Long userId, HttpServletRequest request) {
         // 권한 검증 후 userId 찾기 ->
         User user = userRepository.findById(userId).orElseThrow(()->
-                new NoSuchElementException("not found user"));
+                new UserNotFoundException("not found user"));
         // JWT 토큰 헤더에서 추출
         String bearerToken = request.getHeader("Authorization");
         String jwt = jwtUtil.substringToken(bearerToken);
@@ -162,10 +163,11 @@ public class UserService {
 
         // ADMIN 권한을 가진 사용자인 경우에만 삭제 가능
         if(!UserRole.ADMIN.name().equalsIgnoreCase(userRole)) {
-            throw new ForbiddenException("오류");
+            throw new Forbidden("당신은 ADMIN 유저가 아닙니다.");
         }
 
-        userRepository.delete(user);
+        user.setIsDeleted(true);
+        userRepository.save(user);
     }
 
 
