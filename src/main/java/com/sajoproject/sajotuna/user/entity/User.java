@@ -3,7 +3,7 @@ package com.sajoproject.sajotuna.user.entity;
 import com.sajoproject.sajotuna.feed.entity.Feed;
 import com.sajoproject.sajotuna.common.Timestamped;
 import com.sajoproject.sajotuna.enums.UserRole;
-import com.sajoproject.sajotuna.following.entity.follow;
+import com.sajoproject.sajotuna.following.entity.Follow;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -41,10 +41,10 @@ public class User extends Timestamped {
     private List<Feed> feed = new ArrayList<>();
 
     @OneToMany(mappedBy = "following", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<follow> following = new ArrayList<>();
+    private List<Follow> following = new ArrayList<>();
 
     @OneToMany(mappedBy = "followed", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<follow> followed = new ArrayList<>();
+    private List<Follow> followed = new ArrayList<>();
 
 
     public User (String nickname, String email, String pw, UserRole userRole){

@@ -1,4 +1,57 @@
 package com.sajoproject.sajotuna.following.service;
 
+import com.sajoproject.sajotuna.config.JwtUtil;
+import com.sajoproject.sajotuna.following.dto.followDto.FollowDtoRequest;
+import com.sajoproject.sajotuna.following.dto.followDto.FollowDtoResponse;
+import com.sajoproject.sajotuna.following.entity.Follow;
+import com.sajoproject.sajotuna.following.repository.FollowingRepository;
+import com.sajoproject.sajotuna.user.entity.User;
+import com.sajoproject.sajotuna.user.repository.UserRepository;
+import io.jsonwebtoken.Claims;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@RequiredArgsConstructor
 public class FollowingService {
+
+    private final FollowingRepository followingRepository;
+    private final UserRepository userRepository;
+    private final JwtUtil jwtUtil;
+
+    //팔로잉 추가
+    @Transactional
+    public FollowDtoResponse follow(FollowDtoRequest followDtoRequest, HttpServletRequest request) {
+        // Authorization 헤더에서 토큰 추출
+        String bearerToken = request.getHeader("Authorization");
+        String jwt = jwtUtil.substringToken(bearerToken);
+        Claims claims = jwtUtil.extractClaims(jwt);
+
+        // JWT에서 사용자 ID 추출
+        String followingId = claims.get("sub", String.class);
+
+        /*
+         * 밑의 예외처리 수정 예정
+         * 이미 팔로우 한 사람을 다시 팔로우 할 경우 예외처리 예정
+         */
+
+        // 데이터베이스에서 사용자 정보 조회
+        User following = userRepository.findById(Long.valueOf(followingId))
+                .orElseThrow(()-> new IllegalArgumentException("팔로우 요청한 유저가 존재하지 않습니다."));
+
+        User followed = userRepository.findById(followDtoRequest.getFollowedId())
+                .orElseThrow(() -> new IllegalArgumentException ("팔로우할 유저가 존재하지 않습니다."));
+
+
+        // 팔로우 관계 생성 및 저장
+        Follow follow = new Follow(following, followed);
+        followingRepository.save(follow);
+
+        return new FollowDtoResponse(follow);
+    }
+
+
+
 }
