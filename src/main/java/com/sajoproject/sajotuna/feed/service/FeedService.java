@@ -35,6 +35,7 @@ public class FeedService {
     }
 
 
+    @Transactional
     public FeedCreateDtoResponse feedCreate(FeedCreateDtoRequest requestDto) {
 
         Feed feed = new Feed(requestDto);

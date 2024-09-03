@@ -34,7 +34,7 @@ public class FeedController {
     }
 
     //게시물 생성 - request로 title, content, userId 필요
-    @PostMapping("/feed")
+    @PostMapping
     public ResponseEntity<FeedCreateDtoResponse> feedCreate(@RequestBody FeedCreateDtoRequest requestDto) {
         return ResponseEntity.ok(feedService.feedCreate(requestDto));
     }
