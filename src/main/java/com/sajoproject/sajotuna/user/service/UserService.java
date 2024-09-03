@@ -4,9 +4,12 @@ import com.sajoproject.sajotuna.config.JwtUtil;
 import com.sajoproject.sajotuna.config.PasswordEncoder;
 import com.sajoproject.sajotuna.enums.UserRole;
 import com.sajoproject.sajotuna.excption.UserException;
+import com.sajoproject.sajotuna.user.dto.userGetProfileDto.GetProfileResponseDto;
 import com.sajoproject.sajotuna.user.dto.userSignInDto.SigninRequestDto;
 import com.sajoproject.sajotuna.user.dto.userSignupDto.SignupRequestDto;
 import com.sajoproject.sajotuna.user.dto.userSignupDto.SignupResponseDto;
+import com.sajoproject.sajotuna.user.dto.userUpdateProfileDto.UpdateRequestDto;
+import com.sajoproject.sajotuna.user.dto.userUpdateProfileDto.UpdateResponseDto;
 import com.sajoproject.sajotuna.user.entity.User;
 import com.sajoproject.sajotuna.user.repository.UserRepository;
 import io.jsonwebtoken.Claims;
@@ -80,7 +83,66 @@ public class UserService {
                 user.getUserRole()
         );
     }
+// ==============================================================================================
+//    프로필 조회  getProfile
+    public GetProfileResponseDto getProfile(Long userId) {
+       User user = userRepository.findById(userId).orElseThrow(()-> new NullPointerException("not found userId"));
 
+       return new GetProfileResponseDto(
+               user.getUserId(),
+               user.getNickname(),
+               user.getEmail());
+    }
+
+//    프로필 업데이트 updateProfile
+    @Transactional
+    public UpdateResponseDto updateProfile(Long userId, UpdateRequestDto updateRequestDto) {
+        User user = userRepository.findById(userId).orElseThrow(()-> new NullPointerException("not found userId"));
+
+//        비밀번호 수정
+        if (updateRequestDto.getPw() != null){
+            String currentPassword =  user.getPw();
+            String newPassword = updateRequestDto.getPw();
+
+//            비밀번호 형식 확인
+            if (!isValidPasswordFormat(newPassword)){
+                throw new IllegalArgumentException("비밀번호 형식이 맞지 않습니다.");
+            }
+//            동일한 비밀번호로 변경 하는지 확인
+            if (passwordEncoder.matches(newPassword, currentPassword)){
+                throw new IllegalArgumentException("현재 패스워드와 변경하려는 패스워드가 같습니다.");
+            }
+//            새로바꾼 비밀번호와 입력한비밀번호가 동일한지 확인
+            if(!passwordEncoder.matches(updateRequestDto.getPw(), currentPassword)) {
+                throw new IllegalArgumentException("변경된 비밀번호가 현재 입력한 비밀번호와 다릅니다.");
+            }
+//            비밀번호 변경
+            user.updatePw(passwordEncoder.encode(user.getPw()));
+        }
+        User updatedUser = userRepository.save(user);
+        return new UpdateResponseDto(
+                updatedUser.getUserId(),
+                updatedUser.getPw(),
+                updatedUser.getNickname(),
+                updatedUser.getEmail());
+    }
+/*
+*   패스워드 형식
+* - 대소문자 포함 영문 + 숫자 + 특수문자를 최소 1글자씩 포함합니다.
+  - 비밀번호는 최소 8글자 이상이어야 합니다
+*/
+    private boolean isValidPasswordFormat(String pw){
+        if (pw.length()<8){
+            return false;
+        }
+        boolean hasUpperCase = pw.chars().anyMatch(Character::isUpperCase);
+        boolean hasLowerCase = pw.chars().anyMatch(Character::isLowerCase);
+        boolean hasDigit = pw.chars().anyMatch(Character::isDigit);
+        boolean hasSpecialChar = pw.chars().anyMatch(ch -> "!@#$%^&*()-+=<>?~".indexOf(ch) >= 0);
+
+        return hasUpperCase && hasLowerCase && hasDigit && hasSpecialChar;
+    }
+// ==============================================================================================
     @Transactional
     public void deleteUser(Long userId, HttpServletRequest request) {
         // 권한 검증 후 userId 찾기 ->
@@ -114,4 +176,6 @@ public class UserService {
 
         userRepository.delete(user);
     }
+
+
 }

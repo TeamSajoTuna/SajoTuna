@@ -51,4 +51,7 @@ public class User extends Timestamped {
         this.pw = pw;
         this.userRole = userRole;
     }
+    public void updatePw(String pw){
+        this.pw=pw;
+    }
 }
