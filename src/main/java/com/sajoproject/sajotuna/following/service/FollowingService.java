@@ -1,6 +1,7 @@
 package com.sajoproject.sajotuna.following.service;
 
 import com.sajoproject.sajotuna.config.JwtUtil;
+import com.sajoproject.sajotuna.exception.BadRequestException;
 import com.sajoproject.sajotuna.following.dto.followDto.FollowDtoRequest;
 import com.sajoproject.sajotuna.following.dto.followDto.FollowDtoResponse;
 import com.sajoproject.sajotuna.following.entity.Follow;
@@ -39,10 +40,10 @@ public class FollowingService {
 
         // 데이터베이스에서 사용자 정보 조회
         User following = userRepository.findById(Long.valueOf(followingId))
-                .orElseThrow(()-> new IllegalArgumentException("팔로우 요청한 유저가 존재하지 않습니다."));
+                .orElseThrow(()-> new BadRequestException("팔로우 요청한 유저가 존재하지 않습니다."));
 
         User followed = userRepository.findById(followDtoRequest.getFollowedId())
-                .orElseThrow(() -> new IllegalArgumentException ("팔로우할 유저가 존재하지 않습니다."));
+                .orElseThrow(() -> new BadRequestException("팔로우할 유저가 존재하지 않습니다."));
 
 
         // 팔로우 관계 생성 및 저장

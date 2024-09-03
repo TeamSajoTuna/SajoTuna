@@ -4,7 +4,6 @@ import com.sajoproject.sajotuna.following.dto.followDto.FollowDtoRequest;
 import com.sajoproject.sajotuna.following.dto.followDto.FollowDtoResponse;
 import com.sajoproject.sajotuna.following.service.FollowingService;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
