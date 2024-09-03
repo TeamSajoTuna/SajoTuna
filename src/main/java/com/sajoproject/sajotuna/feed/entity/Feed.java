@@ -36,4 +36,9 @@ public class Feed extends Timestamped {
         user.setUserId(requestDto.getUserId()); // User 객체의 ID 설정
         this.user = user;
     }
+
+    public void feedUpdate(String title, String content) {
+        this.title = title;
+        this.content = content;
+    }
 }

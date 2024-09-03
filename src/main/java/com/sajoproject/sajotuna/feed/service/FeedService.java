@@ -43,10 +43,15 @@ public class FeedService {
         return new FeedCreateDtoResponse(feed);
     }
 
+    @Transactional
     public FeedUpdateResponseDto feedUpdate(Long feedId, FeedUpdateRequestDto requestDto) {
 
         Feed feed = feedRepository.findById(feedId)
                 .orElseThrow(() -> new IllegalArgumentException("ID를 찾을 수 없습니다" + feedId));
+
+        feed.feedUpdate(requestDto.getTitle(), requestDto.getContent());
+
+        feedRepository.save(feed);
 
         FeedUpdateResponseDto responseDto = new FeedUpdateResponseDto(
                 feed.getFeedId(),

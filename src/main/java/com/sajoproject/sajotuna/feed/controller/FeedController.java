@@ -7,6 +7,7 @@ import com.sajoproject.sajotuna.feed.dto.feedGetFeedByIdDto.FeedGetFeedByIdDtoRe
 import com.sajoproject.sajotuna.feed.dto.feedUpdatdDto.FeedUpdateRequestDto;
 import com.sajoproject.sajotuna.feed.dto.feedUpdatdDto.FeedUpdateResponseDto;
 import com.sajoproject.sajotuna.feed.service.FeedService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -42,16 +43,17 @@ public class FeedController {
     }
 
     // 게시물 수정
-    @PutMapping("/feed/{id}")
-    public ResponseEntity<FeedUpdateResponseDto> feedUpdate(
-            @PathVariable Long id, @RequestBody FeedUpdateRequestDto requestDto) {
+    @PutMapping("/{id}")
+    public ResponseEntity<FeedUpdateResponseDto> feedUpdate(@PathVariable Long id,
+           @RequestBody FeedUpdateRequestDto requestDto, HttpServletRequest request) {
         FeedUpdateResponseDto responseDto = feedService.feedUpdate(id, requestDto);
         return ResponseEntity.ok(responseDto);
     }
 
     // 게시물 삭제
     @DeleteMapping("/feed/{id}")
-    public ResponseEntity<FeedDeleteResponseDto> feedDelete(@PathVariable Long id) {
+    public ResponseEntity<FeedDeleteResponseDto> feedDelete(
+            @PathVariable Long id, HttpServletRequest request) {
         feedService.feedDelete(id);
         FeedDeleteResponseDto responseDto = new FeedDeleteResponseDto("삭제 되었습니다.");
         return ResponseEntity.ok(responseDto);
