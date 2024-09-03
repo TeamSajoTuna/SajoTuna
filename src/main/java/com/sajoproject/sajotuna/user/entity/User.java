@@ -45,13 +45,23 @@ public class User extends Timestamped {
     private List<follow> followed = new ArrayList<>();
 
 
-    public User (String nickname, String email, String pw, UserRole userRole){
+    public User(String nickname, String email, String pw, UserRole userRole) {
         this.nickname = nickname;
         this.email = email;
         this.pw = pw;
         this.userRole = userRole;
     }
-    public void updatePw(String pw){
-        this.pw=pw;
+
+//    업데이트 비밀번호, 닉네임, 이메일
+    public void updatePw(String pw) {
+        this.pw = pw;
+    }
+    public void updateProfile(String nickname, String email) {
+        if (nickname != null && !nickname.isEmpty()) {
+            this.nickname = nickname;
+        }
+        if (email != null && !email.isEmpty()) {
+            this.email = email;
+        }
     }
 }

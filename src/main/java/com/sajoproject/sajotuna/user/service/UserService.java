@@ -85,21 +85,31 @@ public class UserService {
     }
 // ==============================================================================================
 //    프로필 조회  getProfile
-    public GetProfileResponseDto getProfile(Long userId) {
+    public GetProfileResponseDto getProfile(Long userId, boolean isOwnProfile) {
        User user = userRepository.findById(userId).orElseThrow(()-> new NullPointerException("not found userId"));
 
-       return new GetProfileResponseDto(
-               user.getUserId(),
-               user.getNickname(),
-               user.getEmail());
+//       본인 프로필이면 Id, 닉네임, 이메일 반환, 아니라면 Id,닉네임만 반환
+       if (isOwnProfile){
+           return new GetProfileResponseDto(
+                   user.getUserId(),
+                   user.getNickname(),
+                   user.getEmail());
+       } else {
+           return new GetProfileResponseDto(
+                   user.getUserId(),
+                   user.getNickname(),
+                   null);
+       }
     }
 
-//    프로필 업데이트 updateProfile
+
+//    프로필 수정 updateProfile
     @Transactional
     public UpdateResponseDto updateProfile(Long userId, UpdateRequestDto updateRequestDto) {
         User user = userRepository.findById(userId).orElseThrow(()-> new NullPointerException("not found userId"));
 
-//        비밀번호 수정
+
+//            비밀번호 수정
         if (updateRequestDto.getPw() != null){
             String currentPassword =  user.getPw();
             String newPassword = updateRequestDto.getPw();
@@ -119,6 +129,9 @@ public class UserService {
 //            비밀번호 변경
             user.updatePw(passwordEncoder.encode(user.getPw()));
         }
+//        닉네임, 이메일 변경
+        user.updateProfile(updateRequestDto.getNickname(), updateRequestDto.getEmail());
+
         User updatedUser = userRepository.save(user);
         return new UpdateResponseDto(
                 updatedUser.getUserId(),
