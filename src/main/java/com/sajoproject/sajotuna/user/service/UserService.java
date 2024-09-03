@@ -3,7 +3,8 @@ package com.sajoproject.sajotuna.user.service;
 import com.sajoproject.sajotuna.config.JwtUtil;
 import com.sajoproject.sajotuna.config.PasswordEncoder;
 import com.sajoproject.sajotuna.enums.UserRole;
-import com.sajoproject.sajotuna.excption.UserNotFoundException;
+import com.sajoproject.sajotuna.excption.CustomException;
+import com.sajoproject.sajotuna.excption.ErrorCode;
 import com.sajoproject.sajotuna.user.dto.userSignInDto.SigninRequestDto;
 import com.sajoproject.sajotuna.user.dto.userSignupDto.SignupRequestDto;
 import com.sajoproject.sajotuna.user.dto.userSignupDto.SignupResponseDto;
@@ -13,6 +14,7 @@ import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +31,9 @@ public class UserService {
     // Signup
     @Transactional
     public SignupResponseDto signup(SignupRequestDto signupRequestDto) {
+        User newUser = new User();
+        User savedUser =
+
         if (userRepository.existsByEmail(signupRequestDto.getEmail())) {
             throw new IllegalArgumentException("중복된 이메일입니다.");
         }
@@ -67,11 +72,11 @@ public class UserService {
     // Signin
     public String signIn(SigninRequestDto requestDto) {
         User user = userRepository.findByEmail(requestDto.getEmail()).orElseThrow(
-                ()->new IllegalArgumentException("not found email"));
+                ()->new CustomException(ErrorCode.USER_NOT_FOUND));
 
         // 로그인 시 이메일과 비밀번호가 일치하지 않을 경우 401 반환
         if(!passwordEncoder.matches(requestDto.getPw(), user.getPw())) {
-            throw new UserNotFoundException();
+            throw new CustomException(ErrorCode.USER_NOT_FOUND);
         }
         return jwtUtil.createToken(
                 user.getUserId(),
@@ -88,28 +93,17 @@ public class UserService {
                 new NoSuchElementException("not found user"));
         // JWT 토큰 헤더에서 추출
         String bearerToken = request.getHeader("Authorization");
-//        if (bearerToken == null || !bearerToken.startsWith("Bearer ")) {
-//            log.error("JWT 토큰 x");
-//            throw new IllegalArgumentException("you need to be in token");
-//        }
+
         String jwt = jwtUtil.substringToken(bearerToken);
 
-//        log.debug("JWT Token: {}", bearerToken);
-//        log.debug("Extract JWT: {}", jwt);
 
         // 토큰에서 Claim 추출
         Claims claims = jwtUtil.extractClaims(jwt);
-//        try{
-//            claims = jwtUtil.extractClaims(jwt);
-//        } catch (Exception e) {
-//            log.error("jwt 토큰 처리 오류", e);
-//            throw new SecurityException("JWT 토큰 처리 중 오류 발생",e);
-//        }
         String userRole = claims.get("userRole", String.class);
 
         // 자신의 계정이나 ADMIN 권한을 가진 사용자인 경우에만 삭제 가능
         if(!UserRole.ADMIN.name().equalsIgnoreCase(userRole)) {
-            throw new UserNotFoundException("해당 계정을 삭제할 권한이 없습니다.");
+            throw new CustomException(ErrorCode.FORBIDDEN);
         }
 
         userRepository.delete(user);

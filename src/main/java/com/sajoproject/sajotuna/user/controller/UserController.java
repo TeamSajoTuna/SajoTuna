@@ -25,8 +25,7 @@ public class UserController {
     public ResponseEntity<Void> signIn(@RequestBody SigninRequestDto requestDto, HttpServletResponse response){
         String bearerToken = userService.signIn(requestDto);
         // Access Token(Authorization) 토큰 헤더에 추가
-        response.setHeader("Authorization", bearerToken);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().header("Authorization", bearerToken).build();
     }
 
     // 요청 헤더에서 JWT 토큰 추출하여 삭제
