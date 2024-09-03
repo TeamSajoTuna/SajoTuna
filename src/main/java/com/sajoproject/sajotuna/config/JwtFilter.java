@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -22,6 +23,7 @@ import java.util.List;
 public class JwtFilter implements Filter {
 
     private final JwtUtil jwtUtil;
+    private final Pattern authPattern = Pattern.compile("^/users.*");
 
     // 필터 초기화 메서드
     @Override
@@ -39,6 +41,11 @@ public class JwtFilter implements Filter {
         String method = httpRequest.getMethod();
 
         // 회원가입과 로그인은 인증 처리에서 제외
+//        if (url.startsWith("/users")) {
+//            chain.doFilter(request, response);
+//            return;
+//        }
+
         if (url.startsWith("/users")) {
             chain.doFilter(request, response);
             return;

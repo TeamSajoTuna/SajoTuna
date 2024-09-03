@@ -1,0 +1,11 @@
+package com.sajoproject.sajotuna.user.dto.authUserDto;
+
+public class AuthUser {
+    private final Long id;
+    private final String email;
+
+    public AuthUser(Long id, String email) {
+        this.id = id;
+        this.email = email;
+    }
+}
