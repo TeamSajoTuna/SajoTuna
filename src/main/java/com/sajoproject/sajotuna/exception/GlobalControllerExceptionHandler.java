@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @ControllerAdvice
-public class GlobalExceptionHandler {
+public class GlobalControllerExceptionHandler {
 
     @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<String> BadRequestException(BadRequestException ex) {
