@@ -1,7 +1,7 @@
 package com.sajoproject.sajotuna.feed.entity;
 
 import com.sajoproject.sajotuna.common.Timestamped;
-import com.sajoproject.sajotuna.feed.dto.createFeedDto.CreateFeedRequestDto;
+import com.sajoproject.sajotuna.feed.dto.feedCreateDto.FeedCreateDtoRequest;
 import com.sajoproject.sajotuna.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -29,8 +29,8 @@ public class Feed extends Timestamped {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    // createFeed 메서드에 사용
-    public Feed(CreateFeedRequestDto requestDto) {
+    // feedCreate 메서드에 사용
+    public Feed(FeedCreateDtoRequest requestDto) {
         this.title = requestDto.getTitle();
         this.content = requestDto.getContent();
         User user = new User();
