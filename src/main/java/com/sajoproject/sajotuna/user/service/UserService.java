@@ -75,7 +75,7 @@ public class UserService {
                 user.getUserRole()
         );
     }
-// ==============================================================================================
+
 //    프로필 조회  getProfile
     public GetProfileResponseDto getProfile(Long userId, boolean isOwnProfile) {
        User user = userRepository.findById(userId).orElseThrow(()-> new NullPointerException("not found userId"));
@@ -94,17 +94,15 @@ public class UserService {
        }
     }
 
-
 //    프로필 수정 updateProfile
     @Transactional
     public UpdateResponseDto updateProfile(Long userId, UpdateRequestDto updateRequestDto) {
         User user = userRepository.findById(userId).orElseThrow(()-> new NullPointerException("not found userId"));
 
-
 //            비밀번호 수정
-        if (updateRequestDto.getPw() != null){
-            String currentPassword =  user.getPw();
-            String newPassword = updateRequestDto.getPw();
+        if (updateRequestDto.getCurrentPassword() != null && updateRequestDto.getNewPassword() != null) {
+            String currentPassword = user.getPw();
+            String newPassword = updateRequestDto.getNewPassword();
 
 //            비밀번호 형식 확인
             if (!isValidPasswordFormat(newPassword)){
@@ -115,11 +113,11 @@ public class UserService {
                 throw new IllegalArgumentException("현재 패스워드와 변경하려는 패스워드가 같습니다.");
             }
 //            새로바꾼 비밀번호와 입력한비밀번호가 동일한지 확인
-            if(!passwordEncoder.matches(updateRequestDto.getPw(), currentPassword)) {
+            if(!passwordEncoder.matches(updateRequestDto.getCurrentPassword(), currentPassword)) {
                 throw new IllegalArgumentException("변경된 비밀번호가 현재 입력한 비밀번호와 다릅니다.");
             }
 //            비밀번호 변경
-            user.updatePw(passwordEncoder.encode(user.getPw()));
+            user.updatePw(passwordEncoder.encode(newPassword));
         }
 //        닉네임, 이메일 변경
         user.updateProfile(updateRequestDto.getNickname(), updateRequestDto.getEmail());
@@ -147,7 +145,7 @@ public class UserService {
 
         return hasUpperCase && hasLowerCase && hasDigit && hasSpecialChar;
     }
-// ==============================================================================================
+
     @Transactional
     public void deleteUser(Long userId, HttpServletRequest request) {
         // 권한 검증 후 userId 찾기 ->
