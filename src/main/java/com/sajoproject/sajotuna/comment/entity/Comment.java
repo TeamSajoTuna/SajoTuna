@@ -1,6 +1,7 @@
 package com.sajoproject.sajotuna.comment.entity;
 
 
+import com.sajoproject.sajotuna.comment.dto.postCommentDto.PostCommentDtoRequest;
 import com.sajoproject.sajotuna.feed.entity.Feed;
 import com.sajoproject.sajotuna.common.Timestamped;
 import com.sajoproject.sajotuna.user.entity.User;
@@ -28,4 +29,14 @@ public class Comment extends Timestamped {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    public Comment(PostCommentDtoRequest reqDto){
+        this.content=reqDto.getContent();
+        Feed newfeed = new Feed();
+        newfeed.setFeedId(reqDto.getFeedId());
+        User newuser = new User();
+        newuser.setUserId(reqDto.getUserId());
+        this.user=newuser;
+        this.feed=newfeed;
+    }
 }

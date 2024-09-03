@@ -6,9 +6,11 @@ import com.sajoproject.sajotuna.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
+@Setter
 @Table(name = "Feed")
 @NoArgsConstructor
 public class Feed extends Timestamped {

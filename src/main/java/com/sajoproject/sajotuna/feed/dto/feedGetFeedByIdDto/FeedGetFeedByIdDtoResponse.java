@@ -17,11 +17,11 @@ public class FeedGetFeedByIdDtoResponse {
     Long userId;
 
     public FeedGetFeedByIdDtoResponse(Feed feed){
-        this.feedId=getFeedId();
-        this.createdAt=getCreatedAt();
-        this.modifiedAt=getModifiedAt();
-        this.title=getTitle();
-        this.content=getContent();
+        this.feedId=feed.getFeedId();
+        this.createdAt=feed.getCreatedAt();
+        this.modifiedAt=feed.getModifiedAt();
+        this.title=feed.getTitle();
+        this.content=feed.getContent();
         this.userId=feed.getUser().getUserId();
 
     }
