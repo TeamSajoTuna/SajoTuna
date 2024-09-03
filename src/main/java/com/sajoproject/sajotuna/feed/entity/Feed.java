@@ -24,11 +24,10 @@ public class Feed extends Timestamped {
     @Column(name = "content")
     private String content;
 
-
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-
+    
     // feedCreate 메서드에 사용
     public Feed(FeedCreateDtoRequest requestDto) {
         this.title = requestDto.getTitle();
