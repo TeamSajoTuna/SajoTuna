@@ -1,6 +1,7 @@
 package com.sajoproject.sajotuna.user.controller;
 
 
+
 import com.sajoproject.sajotuna.config.JwtUtil;
 import com.sajoproject.sajotuna.user.dto.userDeleteDto.DeleteResponseDto;
 import com.sajoproject.sajotuna.user.dto.userGetProfileDto.GetProfileResponseDto;
@@ -13,7 +14,6 @@ import com.sajoproject.sajotuna.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,18 +30,18 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/users/signup")
-    public ResponseEntity<SignupResponseDto> signup(@RequestBody SignupRequestDto requestDto) {
-        return ResponseEntity.ok(userService.signup(requestDto));
+    public ResponseEntity<String> signup(@RequestBody SignupRequestDto requestDto) {
+        String bearerToken = userService.signup(requestDto);
+        return ResponseEntity.ok().header("Authorization", bearerToken).build();
     }
 
     @PostMapping("/users/signin")
-    public ResponseEntity<Void> signIn(@RequestBody SigninRequestDto requestDto, HttpServletResponse response){
+    public ResponseEntity<Void> signIn(@RequestBody SigninRequestDto requestDto){
         String bearerToken = userService.signIn(requestDto);
         // Access Token(Authorization) 토큰 헤더에 추가
-        response.setHeader("Authorization", bearerToken);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().header("Authorization", bearerToken).build();
     }
-// ======================================================================================
+
     // 프로필 조회
     @GetMapping("/users/{userId}")
     public  ResponseEntity<GetProfileResponseDto> getProfile(@PathVariable Long userId, HttpServletRequest request) {
@@ -65,7 +65,7 @@ public class UserController {
     public ResponseEntity<UpdateResponseDto> updateProfile(@PathVariable Long userId, @RequestBody UpdateRequestDto updateRequestDto){
         return ResponseEntity.ok(userService.updateProfile(userId,updateRequestDto));
     }
-// ====================================================================================
+
 
     // 요청 헤더에서 JWT 토큰 추출하여 삭제
     @DeleteMapping("/users/{userId}")

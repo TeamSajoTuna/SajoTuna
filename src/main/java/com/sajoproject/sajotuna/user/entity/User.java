@@ -33,6 +33,9 @@ public class User extends Timestamped {
     @Column(name = "email")
     private String email;
 
+    @Column(nullable = false)
+    private Boolean isDeleted = false;
+
     // Enum 을 내부적으로 STRING 형태로 돌 수 있도록 설정
     @Enumerated(EnumType.STRING)
     private UserRole userRole;
