@@ -1,6 +1,7 @@
 package com.sajoproject.sajotuna.feed.service;
 
 
+import com.sajoproject.sajotuna.exception.BadRequestException;
 import com.sajoproject.sajotuna.feed.dto.feedCreateDto.FeedCreateDtoRequest;
 import com.sajoproject.sajotuna.feed.dto.feedCreateDto.FeedCreateDtoResponse;
 import com.sajoproject.sajotuna.feed.dto.feedGetFeedByIdDto.FeedGetFeedByIdDtoResponse;
@@ -21,9 +22,7 @@ public class FeedService {
     @Transactional
     public FeedGetFeedByIdDtoResponse getFeedById(Long id) {
 
-        // 에러 헨들러 구현 후에는 아래의 방식으로 예외 처리할 예정
-        // .orElseThrow(() -> new BadRequestException("존재하지 않는 feed_id"));
-        Feed feed = feedRepository.findById(id).orElse(null);
+        Feed feed = feedRepository.findById(id).orElseThrow(() -> new BadRequestException("존재하지 않는 feed_id"));
         FeedGetFeedByIdDtoResponse resFeed = new FeedGetFeedByIdDtoResponse(feed);
         return resFeed;
     }
@@ -31,6 +30,7 @@ public class FeedService {
     @Transactional
     public void getFeedPaging(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
+
 
     }
 
