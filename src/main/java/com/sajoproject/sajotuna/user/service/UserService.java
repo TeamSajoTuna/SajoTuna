@@ -3,7 +3,7 @@ package com.sajoproject.sajotuna.user.service;
 import com.sajoproject.sajotuna.config.JwtUtil;
 import com.sajoproject.sajotuna.config.PasswordEncoder;
 import com.sajoproject.sajotuna.enums.UserRole;
-import com.sajoproject.sajotuna.excption.UserException;
+import com.sajoproject.sajotuna.excption.UserNotFoundException;
 import com.sajoproject.sajotuna.user.dto.userSignInDto.SigninRequestDto;
 import com.sajoproject.sajotuna.user.dto.userSignupDto.SignupRequestDto;
 import com.sajoproject.sajotuna.user.dto.userSignupDto.SignupResponseDto;
@@ -71,7 +71,7 @@ public class UserService {
 
         // 로그인 시 이메일과 비밀번호가 일치하지 않을 경우 401 반환
         if(!passwordEncoder.matches(requestDto.getPw(), user.getPw())) {
-            throw new UserException("incorrect password");
+            throw new UserNotFoundException();
         }
         return jwtUtil.createToken(
                 user.getUserId(),
@@ -109,7 +109,7 @@ public class UserService {
 
         // 자신의 계정이나 ADMIN 권한을 가진 사용자인 경우에만 삭제 가능
         if(!UserRole.ADMIN.name().equalsIgnoreCase(userRole)) {
-            throw new UserException("해당 계정을 삭제할 권한이 없습니다.");
+            throw new UserNotFoundException("해당 계정을 삭제할 권한이 없습니다.");
         }
 
         userRepository.delete(user);

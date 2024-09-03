@@ -1,5 +1,7 @@
 package com.sajoproject.sajotuna.config;
 
+import com.sajoproject.sajotuna.excption.SajoException;
+import com.sajoproject.sajotuna.excption.UserNotFoundException;
 import jakarta.security.auth.message.AuthException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,5 +26,10 @@ public class GlobalExceptionHandler {
         errorResponse.put("message", message);
 
         return new ResponseEntity<>(errorResponse, status);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<Map<String, Object>> userException(SajoException sajoException) {
+        return getErrorResponse(sajoException.getStatus(), sajoException.getMessage());
     }
 }
