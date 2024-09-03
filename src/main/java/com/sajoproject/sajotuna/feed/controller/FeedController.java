@@ -32,6 +32,7 @@ public class FeedController {
             @RequestParam(required = false, defaultValue = "0") int page,  // 기본 페이지 번호는 0
             @RequestParam(required = false, defaultValue = "10") int size  // 기본 페이지 크기는 10
     ) {
+        feedService.getFeedPaging(page,size);
 
 
     }
