@@ -1,7 +1,8 @@
 package com.sajoproject.sajotuna.user.entity;
 
-import com.sajoproject.sajotuna.board.entity.Board;
+import com.sajoproject.sajotuna.feed.entity.Feed;
 import com.sajoproject.sajotuna.common.Timestamped;
+import com.sajoproject.sajotuna.enums.UserRole;
 import com.sajoproject.sajotuna.following.entity.follow;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -30,8 +31,12 @@ public class User extends Timestamped {
     @Column(name = "email")
     private String email;
 
+    // Enum 을 내부적으로 STRING 형태로 돌 수 있도록 설정
+    @Enumerated(EnumType.STRING)
+    private UserRole userRole;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Board> board = new ArrayList<>();
+    private List<Feed> feed = new ArrayList<>();
 
     @OneToMany(mappedBy = "following", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<follow> following = new ArrayList<>();
@@ -39,4 +44,11 @@ public class User extends Timestamped {
     @OneToMany(mappedBy = "followed", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<follow> followed = new ArrayList<>();
 
+
+    public User (String nickname, String email, String pw, UserRole userRole){
+        this.nickname = nickname;
+        this.email = email;
+        this.pw = pw;
+        this.userRole = userRole;
+    }
 }
