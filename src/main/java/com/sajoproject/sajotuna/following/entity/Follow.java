@@ -10,7 +10,7 @@ import org.hibernate.annotations.Fetch;
 @Getter
 @Table(name = "follow")
 @NoArgsConstructor
-public class follow {
+public class Follow {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,4 +24,10 @@ public class follow {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "followed_id", nullable = false)
     private User followed;
+
+
+    public Follow(User following, User followed) {
+        this.following = following;
+        this.followed = followed;
+    }
 }

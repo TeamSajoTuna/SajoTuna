@@ -40,11 +40,6 @@ public class JwtFilter implements Filter {
         String url = httpRequest.getRequestURI();
         String method = httpRequest.getMethod();
 
-        // 회원가입과 로그인은 인증 처리에서 제외
-//        if (url.startsWith("/users")) {
-//            chain.doFilter(request, response);
-//            return;
-//        }
 
         if (url.startsWith("/users")) {
             chain.doFilter(request, response);

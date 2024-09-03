@@ -2,13 +2,13 @@ package com.sajoproject.sajotuna.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@ControllerAdvice
+@RestControllerAdvice
 public class GlobalControllerExceptionHandler {
 
     @ExceptionHandler(BadRequestException.class)
@@ -26,11 +26,32 @@ public class GlobalControllerExceptionHandler {
         return ResponseEntity.status(403).body(ex.getMessage());
     }
 
-    @ExceptionHandler(ForbiddenException.class)
-    public ResponseEntity<Map<String, Object>> Forbidden(ForbiddenException ex) {
+
+    // Json 형태
+    @ExceptionHandler(Forbidden.class)
+    public ResponseEntity<Map<String, Object>> Forbidden(Forbidden ex) {
         HttpStatus status = HttpStatus.FORBIDDEN;
         return getErrorResponse(status, ex.getMessage());
     }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> NotFound(UserNotFoundException ex) {
+        HttpStatus status = HttpStatus.NOT_FOUND;
+        return getErrorResponse(status, ex.getMessage());
+    }
+
+    @ExceptionHandler(UnAuthorized.class)
+    public ResponseEntity<Map<String, Object>> UnAuthorized(UnAuthorized ex) {
+        HttpStatus status = HttpStatus.UNAUTHORIZED;
+        return getErrorResponse(status, ex.getMessage());
+    }
+
+    @ExceptionHandler(Conflict.class)
+    public ResponseEntity<Map<String, Object>> Conflict(Conflict ex) {
+        HttpStatus status = HttpStatus.CONFLICT;
+        return getErrorResponse(status, ex.getMessage());
+    }
+
 
     public ResponseEntity<Map<String, Object>> getErrorResponse(HttpStatus status, String message) {
         Map<String, Object> errorResponse = new HashMap<>();
