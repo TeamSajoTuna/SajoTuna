@@ -1,5 +1,6 @@
 package com.sajoproject.sajotuna.feed.service;
 
+import com.sajoproject.sajotuna.exception.BadRequestException;
 import com.sajoproject.sajotuna.feed.dto.feedCreateDto.FeedCreateDtoRequest;
 import com.sajoproject.sajotuna.feed.dto.feedCreateDto.FeedCreateDtoResponse;
 import com.sajoproject.sajotuna.feed.dto.feedGetFeedByIdDto.FeedGetFeedByIdDtoResponse;
