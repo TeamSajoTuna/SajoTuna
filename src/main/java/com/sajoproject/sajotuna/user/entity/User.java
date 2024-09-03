@@ -54,7 +54,11 @@ public class User extends Timestamped {
         this.userRole = userRole;
     }
 
-//    업데이트 비밀번호, 닉네임, 이메일
+    public User(Long followingId) {
+        this.userId = followingId;
+    }
+
+    //    업데이트 비밀번호, 닉네임, 이메일
     public void updatePw(String pw) {
         this.pw = pw;
     }
