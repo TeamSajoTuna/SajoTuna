@@ -83,7 +83,7 @@ public class UserService {
                 user.getUserRole()
         );
     }
-// ==============================================================================================
+
 //    프로필 조회  getProfile
     public GetProfileResponseDto getProfile(Long userId, boolean isOwnProfile) {
        User user = userRepository.findById(userId).orElseThrow(()-> new NullPointerException("not found userId"));
@@ -102,12 +102,10 @@ public class UserService {
        }
     }
 
-
 //    프로필 수정 updateProfile
     @Transactional
     public UpdateResponseDto updateProfile(Long userId, UpdateRequestDto updateRequestDto) {
         User user = userRepository.findById(userId).orElseThrow(()-> new NullPointerException("not found userId"));
-
 
 //            비밀번호 수정
         if (updateRequestDto.getPw() != null){
@@ -155,7 +153,7 @@ public class UserService {
 
         return hasUpperCase && hasLowerCase && hasDigit && hasSpecialChar;
     }
-// ==============================================================================================
+
     @Transactional
     public void deleteUser(Long userId, HttpServletRequest request) {
         // 권한 검증 후 userId 찾기 ->
