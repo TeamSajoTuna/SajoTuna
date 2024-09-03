@@ -1,4 +1,4 @@
-package com.sajoproject.sajotuna.feed.dto.createFeedDto;
+package com.sajoproject.sajotuna.feed.dto.feedCreateDto;
 
 import com.sajoproject.sajotuna.feed.entity.Feed;
 import com.sajoproject.sajotuna.user.entity.User;
@@ -7,7 +7,7 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 
 @Getter
-public class CreateFeedResponseDto {
+public class FeedCreateDtoResponse {
     private Long feedId;
     private String title;
     private String content;
@@ -15,7 +15,7 @@ public class CreateFeedResponseDto {
     private LocalDateTime modifiedAt;
     private Long userId;
 
-    public CreateFeedResponseDto(Feed feed) {
+    public FeedCreateDtoResponse(Feed feed) {
         this.feedId = feed.getFeedId();
         this.title = feed.getTitle();
         this.content = feed.getContent();
