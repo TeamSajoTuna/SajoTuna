@@ -1,10 +1,9 @@
 package com.sajoproject.sajotuna.user.controller;
 
-import com.sajoproject.sajotuna.user.dto.DeleteResponseDto;
-import com.sajoproject.sajotuna.user.dto.request.SigninRequestDto;
-import com.sajoproject.sajotuna.user.dto.request.SignupRequestDto;
-import com.sajoproject.sajotuna.user.dto.response.SigninResponseDto;
-import com.sajoproject.sajotuna.user.dto.response.SignupResponseDto;
+import com.sajoproject.sajotuna.user.dto.userDeleteDto.DeleteResponseDto;
+import com.sajoproject.sajotuna.user.dto.userSignInDto.SigninRequestDto;
+import com.sajoproject.sajotuna.user.dto.userSignupDto.SignupRequestDto;
+import com.sajoproject.sajotuna.user.dto.userSignupDto.SignupResponseDto;
 import com.sajoproject.sajotuna.user.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

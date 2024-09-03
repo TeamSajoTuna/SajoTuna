@@ -1,9 +1,6 @@
-package com.sajoproject.sajotuna.user.dto;
+package com.sajoproject.sajotuna.user.dto.userDeleteDto;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-
-import javax.annotation.processing.Generated;
 
 
 @Getter

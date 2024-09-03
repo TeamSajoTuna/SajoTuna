@@ -1,7 +1,7 @@
 package com.sajoproject.sajotuna.comment.entity;
 
 
-import com.sajoproject.sajotuna.board.entity.Board;
+import com.sajoproject.sajotuna.feed.entity.Feed;
 import com.sajoproject.sajotuna.common.Timestamped;
 import com.sajoproject.sajotuna.user.entity.User;
 import jakarta.persistence.*;
@@ -23,7 +23,7 @@ public class Comment extends Timestamped {
 
     @ManyToOne
     @JoinColumn(name = "board_id", nullable = false)
-    private Board board;
+    private Feed feed;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)

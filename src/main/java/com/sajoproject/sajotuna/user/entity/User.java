@@ -1,6 +1,6 @@
 package com.sajoproject.sajotuna.user.entity;
 
-import com.sajoproject.sajotuna.board.entity.Board;
+import com.sajoproject.sajotuna.feed.entity.Feed;
 import com.sajoproject.sajotuna.common.Timestamped;
 import com.sajoproject.sajotuna.enums.UserRole;
 import com.sajoproject.sajotuna.following.entity.follow;
@@ -36,7 +36,7 @@ public class User extends Timestamped {
     private UserRole userRole;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Board> board = new ArrayList<>();
+    private List<Feed> feed = new ArrayList<>();
 
     @OneToMany(mappedBy = "following", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<follow> following = new ArrayList<>();

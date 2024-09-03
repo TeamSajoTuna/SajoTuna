@@ -1,4 +1,4 @@
-package com.sajoproject.sajotuna.user.dto.request;
+package com.sajoproject.sajotuna.user.dto.userSignInDto;
 
 import lombok.Getter;
 
