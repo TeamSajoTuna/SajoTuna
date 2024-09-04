@@ -7,6 +7,9 @@ import com.sajoproject.sajotuna.exception.Conflict;
 import com.sajoproject.sajotuna.exception.Forbidden;
 import com.sajoproject.sajotuna.exception.UnAuthorized;
 import com.sajoproject.sajotuna.exception.UserNotFoundException;
+import com.sajoproject.sajotuna.refresh.entity.RefreshToken;
+import com.sajoproject.sajotuna.refresh.repository.RefreshTokenRepository;
+import com.sajoproject.sajotuna.user.dto.TokenResponseDto;
 import com.sajoproject.sajotuna.user.dto.authUserDto.AuthUser;
 import com.sajoproject.sajotuna.user.dto.userGetProfileDto.GetProfileResponseDto;
 import com.sajoproject.sajotuna.user.dto.userSignInDto.SigninRequestDto;
@@ -30,6 +33,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     // Signup
     @Transactional
@@ -46,7 +50,7 @@ public class UserService {
                 userRole
         );
         User savedUser = userRepository.save(newUser);
-        return jwtUtil.createToken(savedUser.getUserId(), savedUser.getNickname(), savedUser.getEmail(), savedUser.getUserRole());
+        return jwtUtil.createAccessToken(savedUser.getUserId(), savedUser.getNickname(), savedUser.getEmail(), savedUser.getUserRole());
     }
 
 
@@ -60,19 +64,27 @@ public class UserService {
 
     // SignIn
     @Transactional
-    public String signIn(SigninRequestDto requestDto) {
+    public TokenResponseDto signIn(SigninRequestDto requestDto) {
         User user = userRepository.findByEmail(requestDto.getEmail()).orElseThrow(
                 () -> new UserNotFoundException("not found"));
         // 로그인 시 이메일과 비밀번호가 일치하지 않을 경우 401 반환
         if (!(user.getEmail().equalsIgnoreCase(requestDto.getEmail())) || !passwordEncoder.matches(requestDto.getPw(), user.getPw())) {
             throw new UnAuthorized("incorrect email or password");
         }
-        return jwtUtil.createToken(
+        // Access token 및 refresh token 생성
+        String accessToken = jwtUtil.createAccessToken(
                 user.getUserId(),
                 user.getNickname(),
                 user.getEmail(),
-                user.getUserRole()
-        );
+                user.getUserRole());
+
+        String refreshToken = jwtUtil.createRefreshToken(
+                user.getUserId());
+
+        // Refresh Token을 DB에 저장하는 로직
+        RefreshToken refreshTokenEntity = new RefreshToken(user.getUserId(), user.getNickname(), user.getEmail(), user.getUserRole(), refreshToken);
+        refreshTokenRepository.save(refreshTokenEntity);
+        return new TokenResponseDto(accessToken,refreshToken);
     }
 
     //    프로필 조회  getProfile

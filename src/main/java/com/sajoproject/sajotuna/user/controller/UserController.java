@@ -5,6 +5,7 @@ package com.sajoproject.sajotuna.user.controller;
 import com.sajoproject.sajotuna.annotation.Auth;
 import com.sajoproject.sajotuna.config.JwtUtil;
 import com.sajoproject.sajotuna.exception.MethodArgumentNotValid;
+import com.sajoproject.sajotuna.user.dto.TokenResponseDto;
 import com.sajoproject.sajotuna.user.dto.authUserDto.AuthUser;
 import com.sajoproject.sajotuna.user.dto.userDeleteDto.DeleteResponseDto;
 import com.sajoproject.sajotuna.user.dto.userGetProfileDto.GetProfileResponseDto;
@@ -39,9 +40,12 @@ public class UserController {
 
     @PostMapping("/users/signin")
     public ResponseEntity<Void> signIn(@RequestBody SigninRequestDto requestDto){
-        String bearerToken = userService.signIn(requestDto);
+        TokenResponseDto tokenResponseDto = userService.signIn(requestDto);
         // Access Token(Authorization) 토큰 헤더에 추가
-        return ResponseEntity.ok().header("Authorization", bearerToken).build();
+        return ResponseEntity.ok()
+                .header("Authorization", tokenResponseDto.getAccessToken())
+                .header("RefreshToken", tokenResponseDto.getRefreshToken())
+                .build();
     }
 
     // 프로필 조회
