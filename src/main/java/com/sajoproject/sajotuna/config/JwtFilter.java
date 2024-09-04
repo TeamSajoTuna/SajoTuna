@@ -40,7 +40,7 @@ public class JwtFilter implements Filter {
         String method = httpRequest.getMethod();
 
 
-        if (url.startsWith("/users")) {
+        if (url.startsWith("/users/signup") || url.startsWith("/users/signin")) {
             chain.doFilter(request, response);
             return;
         }
