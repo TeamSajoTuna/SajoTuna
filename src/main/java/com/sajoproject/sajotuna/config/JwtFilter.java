@@ -63,6 +63,11 @@ public class JwtFilter implements Filter {
             // JWT 유효성 검사와 claims 추출
             Claims claims = jwtUtil.extractClaims(jwt);
 
+            // setAttribute
+            request.setAttribute("userId", Long.parseLong(claims.get("sub", String.class)));
+            request.setAttribute("email", claims.get("email",String.class));
+            request.setAttribute("userRole",claims.get("userRole",String.class));
+
             // 관리자 권한이 필요한 경로 설정
             List<String> allowedMethods = Arrays.asList("PUT", "DELETE");
             String pathPrefix = "/users/";

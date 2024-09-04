@@ -24,6 +24,16 @@ public class FollowingController {
         return ResponseEntity.ok(followingService.follow(request, authUser));
     }
 
+    @GetMapping
+    public void zz(@Auth AuthUser authUser){
+        System.out.println(authUser.getId());
+
+        System.out.println(authUser.getEmail());
+
+        System.out.println(authUser.getUserRole());
+
+    }
+
     //팔로잉 삭제
     @DeleteMapping
     public ResponseEntity<UnfollowDtoResponse> unfollow (@RequestBody FollowDtoRequest followDtoRequest, HttpServletRequest request) {
