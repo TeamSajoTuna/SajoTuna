@@ -1,12 +1,17 @@
 package com.sajoproject.sajotuna.feed.entity;
 
+import com.sajoproject.sajotuna.comment.entity.Comment;
 import com.sajoproject.sajotuna.common.Timestamped;
 import com.sajoproject.sajotuna.feed.dto.feedCreateDto.FeedCreateDtoRequest;
+import com.sajoproject.sajotuna.following.entity.Follow;
 import com.sajoproject.sajotuna.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -28,10 +33,11 @@ public class Feed extends Timestamped {
 
 
     @ManyToOne(fetch = FetchType.LAZY)
-
-
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @OneToMany(mappedBy = "feed", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comment = new ArrayList<>();
     
     // feedCreate 메서드에 사용
     public Feed(FeedCreateDtoRequest requestDto) {
