@@ -4,6 +4,7 @@ import com.sajoproject.sajotuna.feed.entity.Feed;
 import com.sajoproject.sajotuna.common.Timestamped;
 import com.sajoproject.sajotuna.enums.UserRole;
 import com.sajoproject.sajotuna.following.entity.Follow;
+import com.sajoproject.sajotuna.message.entity.Message;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -48,6 +49,12 @@ public class User extends Timestamped {
 
     @OneToMany(mappedBy = "followed", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Follow> followed = new ArrayList<>();
+
+    @OneToMany(mappedBy = "receiverId", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Message> receiverId = new ArrayList<>();
+
+    @OneToMany(mappedBy = "senderId", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Message> senderId = new ArrayList<>();
 
 
     public User(String nickname, String email, String pw, UserRole userRole) {
