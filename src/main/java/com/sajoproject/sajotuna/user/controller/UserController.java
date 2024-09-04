@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 
+
 import org.springframework.web.bind.annotation.RestController;
 
 
@@ -44,9 +45,12 @@ public class UserController {
         return ResponseEntity.ok().header("Authorization", bearerToken).build();
     }
 
-    // 프로필 조회
+//      프로필 조회
     @GetMapping("/users/{userId}")
-    public  ResponseEntity<GetProfileResponseDto> getProfile(@PathVariable Long userId, HttpServletRequest request) {
+    public  ResponseEntity<GetProfileResponseDto> getProfile(
+            @PathVariable Long userId,
+            HttpServletRequest request) {
+
 //        JWT 토큰 추출 , 현재 사용자 ID 추출
         String bearerToken = request.getHeader("Authorization");
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
