@@ -13,8 +13,10 @@ import com.sajoproject.sajotuna.user.dto.authUserDto.AuthUser;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/feed")
@@ -43,13 +45,16 @@ public class FeedController {
 
     }
 
-    //게시물 생성 - request로 title, content, userId 필요
+    //게시물 생성 - request로 title, content 필요
     @PostMapping
-    public ResponseEntity<FeedCreateDtoResponse> feedCreate(@RequestBody FeedCreateDtoRequest requestDto) {
-        return ResponseEntity.ok(feedService.feedCreate(requestDto));
+    public ResponseEntity<FeedCreateDtoResponse> feedCreate(
+            @RequestBody FeedCreateDtoRequest requestDto,
+            @Auth AuthUser authUser) {
+        FeedCreateDtoResponse responseDto = feedService.feedCreate(requestDto,authUser.getId());
+        return ResponseEntity.ok(responseDto);
     }
 
-    // 게시물 수정
+    // 게시물 수정 - request로 title, content 필요
     @PutMapping("/{id}")
     public ResponseEntity<FeedUpdateResponseDto> feedUpdate(
             @PathVariable Long id,
@@ -62,13 +67,13 @@ public class FeedController {
     // 게시물 삭제
     @DeleteMapping("/{id}")
     public ResponseEntity<FeedDeleteResponseDto> feedDelete(
-            @PathVariable Long id
+            @PathVariable Long id,
             @Auth AuthUser authUser) {
+
         feedService.feedDelete(id, authUser.getId());
+
         FeedDeleteResponseDto responseDto = new FeedDeleteResponseDto("삭제 되었습니다.");
         return ResponseEntity.ok(responseDto);
 
     }
 }
-
-

@@ -6,5 +6,4 @@ import lombok.Getter;
 public class FeedCreateDtoRequest {
     private String title;
     private String content;
-    private Long userId;
 }
