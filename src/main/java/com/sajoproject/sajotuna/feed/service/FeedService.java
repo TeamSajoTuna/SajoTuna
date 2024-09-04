@@ -62,6 +62,7 @@ public class FeedService {
         return responseDto;
     }
 
+    @Transactional
     public void feedDelete(Long id) {
         Feed feed = feedRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("ID를 찾을 수 없습니다." + id));

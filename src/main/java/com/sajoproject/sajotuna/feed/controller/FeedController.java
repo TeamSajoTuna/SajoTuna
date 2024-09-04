@@ -19,7 +19,6 @@ public class FeedController {
 
     private final FeedService feedService;
 
-
     @GetMapping("/{id}")
     public ResponseEntity<FeedGetFeedByIdDtoResponse> getFeedById(@PathVariable Long id) {
 
@@ -33,8 +32,6 @@ public class FeedController {
             @RequestParam(required = false, defaultValue = "10") int size  // 기본 페이지 크기는 10
     ) {
         feedService.getFeedPaging(page,size);
-
-
     }
 
     //게시물 생성 - request로 title, content, userId 필요
@@ -52,13 +49,12 @@ public class FeedController {
     }
 
     // 게시물 삭제
-    @DeleteMapping("/feed/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<FeedDeleteResponseDto> feedDelete(
             @PathVariable Long id, HttpServletRequest request) {
         feedService.feedDelete(id);
         FeedDeleteResponseDto responseDto = new FeedDeleteResponseDto("삭제 되었습니다.");
         return ResponseEntity.ok(responseDto);
-
     }
 }
 

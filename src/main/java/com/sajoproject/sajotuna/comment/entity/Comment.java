@@ -1,6 +1,7 @@
 package com.sajoproject.sajotuna.comment.entity;
 
 
+import com.sajoproject.sajotuna.comment.dto.commentUpdateDto.CommentUpdateRequestDto;
 import com.sajoproject.sajotuna.comment.dto.postCommentDto.PostCommentDtoRequest;
 import com.sajoproject.sajotuna.feed.entity.Feed;
 import com.sajoproject.sajotuna.common.Timestamped;
@@ -38,5 +39,9 @@ public class Comment extends Timestamped {
         newuser.setUserId(reqDto.getUserId());
         this.user=newuser;
         this.feed=newfeed;
+    }
+
+    public void update(CommentUpdateRequestDto requestDto) {
+        this.content = requestDto.getContent();
     }
 }
