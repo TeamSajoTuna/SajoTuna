@@ -52,9 +52,9 @@ public class JwtUtil {
                         .setIssuedAt(date) // 발급일
                         .signWith(key, signatureAlgorithm) // 암호화 알고리즘
                         .compact();
-    }
+}
 
-    // JWT 추출
+// JWT 추출
     public String substringToken(String tokenValue) {
         // 'Bearer' 로 시작하는 토큰 문자열에서 실제 JWT 추출
         if (StringUtils.hasText(tokenValue) && tokenValue.startsWith(BEARER_PREFIX)) {
