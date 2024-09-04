@@ -2,6 +2,7 @@ package com.sajoproject.sajotuna.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -60,6 +61,13 @@ public class GlobalControllerExceptionHandler {
         errorResponse.put("message", message);
 
         return new ResponseEntity<>(errorResponse, status);
+    }
+
+    // 유효성 검증
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, Object>> MethodArgumentNotValid(MethodArgumentNotValidException ex) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        return getErrorResponse(status, ex.getMessage());
     }
 
 }
