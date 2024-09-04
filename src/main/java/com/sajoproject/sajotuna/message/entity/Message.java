@@ -1,5 +1,6 @@
 package com.sajoproject.sajotuna.message.entity;
 
+import com.sajoproject.sajotuna.message.dto.createMessageDto.CreateMessageDtoRequest;
 import com.sajoproject.sajotuna.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -40,6 +41,19 @@ public class Message {
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;
 
+    public Message(CreateMessageDtoRequest reqDto){
+        this.content=reqDto.getContent();
+
+        User newReceiverId = new User();
+        newReceiverId.setUserId(reqDto.getReceiverId());
+        receiverId=newReceiverId;
+
+        User newSenderId = new User();
+        newSenderId.setUserId(reqDto.getSenderId());
+        senderId=newSenderId;
+
+
+    }
 
 
 }
