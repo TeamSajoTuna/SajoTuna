@@ -6,7 +6,6 @@ import com.sajoproject.sajotuna.following.dto.followDto.FollowDtoResponse;
 import com.sajoproject.sajotuna.following.dto.unfollowDto.UnfollowDtoResponse;
 import com.sajoproject.sajotuna.following.service.FollowingService;
 import com.sajoproject.sajotuna.user.dto.authUserDto.AuthUser;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,20 +23,10 @@ public class FollowingController {
         return ResponseEntity.ok(followingService.follow(request, authUser));
     }
 
-    @GetMapping
-    public void zz(@Auth AuthUser authUser){
-        System.out.println(authUser.getId());
-
-        System.out.println(authUser.getEmail());
-
-        System.out.println(authUser.getUserRole());
-
-    }
-
     //팔로잉 삭제
     @DeleteMapping
-    public ResponseEntity<UnfollowDtoResponse> unfollow (@RequestBody FollowDtoRequest followDtoRequest, HttpServletRequest request) {
-        followingService.unfollow(followDtoRequest, request);
+    public ResponseEntity<UnfollowDtoResponse> unfollow (@RequestBody FollowDtoRequest request, @Auth AuthUser authUser) {
+        followingService.unfollow(request,authUser);
         UnfollowDtoResponse responseDto = new UnfollowDtoResponse("팔로잉이 정상 삭제 되었습니다.");
         return ResponseEntity.ok(responseDto);
     }
