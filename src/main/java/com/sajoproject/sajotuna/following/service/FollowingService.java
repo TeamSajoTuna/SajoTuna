@@ -1,6 +1,5 @@
 package com.sajoproject.sajotuna.following.service;
 
-import com.sajoproject.sajotuna.config.JwtUtil;
 import com.sajoproject.sajotuna.exception.BadRequestException;
 import com.sajoproject.sajotuna.following.dto.followDto.FollowDtoRequest;
 import com.sajoproject.sajotuna.following.dto.followDto.FollowDtoResponse;
@@ -9,8 +8,6 @@ import com.sajoproject.sajotuna.following.repository.FollowingRepository;
 import com.sajoproject.sajotuna.user.dto.authUserDto.AuthUser;
 import com.sajoproject.sajotuna.user.entity.User;
 import com.sajoproject.sajotuna.user.repository.UserRepository;
-import io.jsonwebtoken.Claims;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +18,6 @@ public class FollowingService {
 
     private final FollowingRepository followingRepository;
     private final UserRepository userRepository;
-    private final JwtUtil jwtUtil;
 
     //팔로잉 추가
     @Transactional
@@ -59,14 +55,8 @@ public class FollowingService {
 
     //팔로잉 삭제
     @Transactional
-    public void unfollow(FollowDtoRequest followDtoRequest, HttpServletRequest request) {
-        // JWT 토큰 헤더에서 추출
-        String bearerToken = request.getHeader("Authorization");
-        String jwt = jwtUtil.substringToken(bearerToken);
-
-        // 토큰에서 Claim 추출
-        Claims claims = jwtUtil.extractClaims(jwt);
-        Long followingId = Long.valueOf(claims.get("sub", String.class));
+    public void unfollow(FollowDtoRequest followDtoRequest, AuthUser authUser) {
+        Long followingId = authUser.getId();
 
         // followedId가 널값일 경우
         if (followDtoRequest.getFollowedId() == null) {
