@@ -38,6 +38,8 @@ public class AuthUserArgumentResolver implements HandlerMethodArgumentResolver {
         Long userId = (Long) request.getAttribute("userId");
         String email = (String) request.getAttribute("email");
 
+        String temp = (String) request.getAttribute("test");
+        String temp1 = (String) request.getAttribute("test1");
         return new AuthUser(userId, email);
     }
 }

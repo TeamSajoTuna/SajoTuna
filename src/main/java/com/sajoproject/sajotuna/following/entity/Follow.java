@@ -4,7 +4,6 @@ import com.sajoproject.sajotuna.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Fetch;
 
 @Entity
 @Getter

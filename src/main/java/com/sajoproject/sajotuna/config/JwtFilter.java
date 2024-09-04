@@ -36,7 +36,8 @@ public class JwtFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
-
+        request.setAttribute("test", "userRole");
+        request.setAttribute("test1", "테스트입니다");
         String url = httpRequest.getRequestURI();
         String method = httpRequest.getMethod();
 

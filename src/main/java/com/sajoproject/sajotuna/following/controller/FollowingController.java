@@ -1,18 +1,18 @@
 package com.sajoproject.sajotuna.following.controller;
 
+import com.sajoproject.sajotuna.annotation.Auth;
 import com.sajoproject.sajotuna.following.dto.followDto.FollowDtoRequest;
 import com.sajoproject.sajotuna.following.dto.followDto.FollowDtoResponse;
+import com.sajoproject.sajotuna.following.dto.unfollowDto.UnfollowDtoResponse;
 import com.sajoproject.sajotuna.following.service.FollowingService;
+import com.sajoproject.sajotuna.user.dto.authUserDto.AuthUser;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/follow")
+@RequestMapping("/following")
 @RequiredArgsConstructor
 public class FollowingController {
 
@@ -20,10 +20,16 @@ public class FollowingController {
 
     //팔로잉 추가
     @PostMapping
-    public ResponseEntity<FollowDtoResponse> follow (@RequestBody FollowDtoRequest followDtoRequest, HttpServletRequest request) {
-        return ResponseEntity.ok(followingService.follow(followDtoRequest, request));
+    public ResponseEntity<FollowDtoResponse> follow (@RequestBody FollowDtoRequest request, @Auth AuthUser authUser) {
+        return ResponseEntity.ok(followingService.follow(request, authUser));
     }
 
     //팔로잉 삭제
-    //unfollow
+    @DeleteMapping
+    public ResponseEntity<UnfollowDtoResponse> unfollow (@RequestBody FollowDtoRequest followDtoRequest, HttpServletRequest request) {
+        followingService.unfollow(followDtoRequest, request);
+        UnfollowDtoResponse responseDto = new UnfollowDtoResponse("팔로잉이 정상 삭제 되었습니다.");
+        return ResponseEntity.ok(responseDto);
+    }
+
 }
