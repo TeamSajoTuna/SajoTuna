@@ -16,6 +16,9 @@ public class FeedGetFeedByIdDtoResponse {
     String content;
     Long userId;
 
+    int viewCount;
+
+
     public FeedGetFeedByIdDtoResponse(Feed feed){
         this.feedId=feed.getFeedId();
         this.createdAt=feed.getCreatedAt();
@@ -23,6 +26,8 @@ public class FeedGetFeedByIdDtoResponse {
         this.title=feed.getTitle();
         this.content=feed.getContent();
         this.userId=feed.getUser().getUserId();
+
+        this.viewCount = feed.getViewCount();
 
     }
 

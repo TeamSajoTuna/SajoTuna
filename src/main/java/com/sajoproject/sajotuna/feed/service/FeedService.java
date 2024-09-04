@@ -33,9 +33,27 @@ public class FeedService {
     public FeedGetFeedByIdDtoResponse getFeedById(Long id) {
 
         Feed feed = feedRepository.findById(id).orElseThrow(() -> new BadRequestException("존재하지 않는 feed_id"));
+
+        if (feed.getUser() ==null){
+            throw new BadRequestException("Feed 객체의 User 정보가 없습니다.");
+        }
+        feed.setViewCount(feed.getViewCount()+1);
+
         FeedGetFeedByIdDtoResponse resFeed = new FeedGetFeedByIdDtoResponse(feed);
         return resFeed;
     }
+    // 조회수 관련
+//    @Transactional
+//    public FeedViewResponseDto getView(Long id){
+//        Feed feed = feedRepository.findById(id)
+//                .orElseThrow(()-> new BadRequestException("존재하지 않는 feed_id 입니다."));
+//        if (feed.getUser() ==null){
+//            throw new BadRequestException("Feed 객체의 User 정보가 없습니다.");
+//        }
+//        feed.setViewCount(feed.getViewCount()+1);
+//
+//        return new FeedViewResponseDto(feed);
+//    }
 
     @Transactional
     public Page<FeedPagingDtoResponse> getFeedPaging(int page, int size, Long userId) {
@@ -102,4 +120,6 @@ public class FeedService {
         }
         feedRepository.delete(feed);
     }
+
+
 }
