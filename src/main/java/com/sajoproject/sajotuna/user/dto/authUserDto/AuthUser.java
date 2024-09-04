@@ -8,9 +8,9 @@ public class AuthUser {
     private final String email;
     private final String userRole;
 
-    public AuthUser(Long id, String email, String role) {
+    public AuthUser(Long id, String email, String userRole) {
         this.id = id;
         this.email = email;
-        this.userRole=role;
+        this.userRole=userRole;
     }
 }
