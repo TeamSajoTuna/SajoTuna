@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -22,6 +23,7 @@ import java.util.List;
 public class JwtFilter implements Filter {
 
     private final JwtUtil jwtUtil;
+    private final Pattern authPattern = Pattern.compile("^/users.*");
 
     // 필터 초기화 메서드
     @Override
@@ -38,7 +40,7 @@ public class JwtFilter implements Filter {
         String url = httpRequest.getRequestURI();
         String method = httpRequest.getMethod();
 
-        // 회원가입과 로그인은 인증 처리에서 제외
+
         if (url.startsWith("/users")) {
             chain.doFilter(request, response);
             return;
@@ -62,7 +64,7 @@ public class JwtFilter implements Filter {
 
             // 관리자 권한이 필요한 경로 설정
             List<String> allowedMethods = Arrays.asList("PUT", "DELETE");
-            String pathPrefix = "/feed/";
+            String pathPrefix = "/users/";
 
             // 경로와 메서드 체크 및 관리자 권한이 필요한 경로인지 확인 -> 권한 X 일 경우 403 리턴
             if(checkMethodPath(method, url, allowedMethods, pathPrefix)) {

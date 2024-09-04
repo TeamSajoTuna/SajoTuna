@@ -3,11 +3,13 @@ package com.sajoproject.sajotuna.user.service;
 import com.sajoproject.sajotuna.config.JwtUtil;
 import com.sajoproject.sajotuna.config.PasswordEncoder;
 import com.sajoproject.sajotuna.enums.UserRole;
-import com.sajoproject.sajotuna.excption.UserException;
+import com.sajoproject.sajotuna.exception.Conflict;
+import com.sajoproject.sajotuna.exception.UnAuthorized;
+import com.sajoproject.sajotuna.exception.Forbidden;
+import com.sajoproject.sajotuna.exception.UserNotFoundException;
 import com.sajoproject.sajotuna.user.dto.userGetProfileDto.GetProfileResponseDto;
 import com.sajoproject.sajotuna.user.dto.userSignInDto.SigninRequestDto;
 import com.sajoproject.sajotuna.user.dto.userSignupDto.SignupRequestDto;
-import com.sajoproject.sajotuna.user.dto.userSignupDto.SignupResponseDto;
 import com.sajoproject.sajotuna.user.dto.userUpdateProfileDto.UpdateRequestDto;
 import com.sajoproject.sajotuna.user.dto.userUpdateProfileDto.UpdateResponseDto;
 import com.sajoproject.sajotuna.user.entity.User;
@@ -20,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -31,32 +34,22 @@ public class UserService {
     private final UserRepository userRepository;
     // Signup
     @Transactional
-    public SignupResponseDto signup(SignupRequestDto signupRequestDto) {
+    public String signup(SignupRequestDto signupRequestDto) {
         if (userRepository.existsByEmail(signupRequestDto.getEmail())) {
-            throw new IllegalArgumentException("중복된 이메일입니다.");
+            throw new Conflict("중복된 이메일입니다.");
         }
-
         String encodedPassword = passwordEncoder.encode(signupRequestDto.getPw());
         UserRole userRole = convertToUserRole(signupRequestDto.getUserRole());
-
         User newUser = new User(
                 signupRequestDto.getNickname(),
                 signupRequestDto.getEmail(),
                 encodedPassword,
                 userRole
         );
-
         User savedUser = userRepository.save(newUser);
-
-        String bearerToken = jwtUtil.createToken(
-                savedUser.getUserId(),
-                savedUser.getNickname(),
-                savedUser.getEmail(),
-                savedUser.getUserRole()
-        );
-
-        return new SignupResponseDto(bearerToken);
+        return jwtUtil.createToken(savedUser.getUserId(), savedUser.getNickname(), savedUser.getEmail(), savedUser.getUserRole());
     }
+
 
     private UserRole convertToUserRole(String userRoleString) {
         try {
@@ -66,15 +59,14 @@ public class UserService {
         }
     }
 
-
-    // Signin
+    // SignIn
+    @Transactional
     public String signIn(SigninRequestDto requestDto) {
         User user = userRepository.findByEmail(requestDto.getEmail()).orElseThrow(
-                ()->new IllegalArgumentException("not found email"));
-
+                ()-> new UserNotFoundException("not found"));
         // 로그인 시 이메일과 비밀번호가 일치하지 않을 경우 401 반환
-        if(!passwordEncoder.matches(requestDto.getPw(), user.getPw())) {
-            throw new UserException("incorrect password");
+        if(!(user.getEmail().equalsIgnoreCase(requestDto.getEmail())) || !passwordEncoder.matches(requestDto.getPw(), user.getPw())) {
+            throw new UnAuthorized("incorrect email or password");
         }
         return jwtUtil.createToken(
                 user.getUserId(),
@@ -83,7 +75,7 @@ public class UserService {
                 user.getUserRole()
         );
     }
-// ==============================================================================================
+
 //    프로필 조회  getProfile
     public GetProfileResponseDto getProfile(Long userId, boolean isOwnProfile) {
        User user = userRepository.findById(userId).orElseThrow(()-> new NullPointerException("not found userId"));
@@ -102,17 +94,15 @@ public class UserService {
        }
     }
 
-
 //    프로필 수정 updateProfile
     @Transactional
     public UpdateResponseDto updateProfile(Long userId, UpdateRequestDto updateRequestDto) {
         User user = userRepository.findById(userId).orElseThrow(()-> new NullPointerException("not found userId"));
 
-
 //            비밀번호 수정
-        if (updateRequestDto.getPw() != null){
-            String currentPassword =  user.getPw();
-            String newPassword = updateRequestDto.getPw();
+        if (updateRequestDto.getCurrentPassword() != null && updateRequestDto.getNewPassword() != null) {
+            String currentPassword = user.getPw();
+            String newPassword = updateRequestDto.getNewPassword();
 
 //            비밀번호 형식 확인
             if (!isValidPasswordFormat(newPassword)){
@@ -123,11 +113,11 @@ public class UserService {
                 throw new IllegalArgumentException("현재 패스워드와 변경하려는 패스워드가 같습니다.");
             }
 //            새로바꾼 비밀번호와 입력한비밀번호가 동일한지 확인
-            if(!passwordEncoder.matches(updateRequestDto.getPw(), currentPassword)) {
+            if(!passwordEncoder.matches(updateRequestDto.getCurrentPassword(), currentPassword)) {
                 throw new IllegalArgumentException("변경된 비밀번호가 현재 입력한 비밀번호와 다릅니다.");
             }
 //            비밀번호 변경
-            user.updatePw(passwordEncoder.encode(user.getPw()));
+            user.updatePw(passwordEncoder.encode(newPassword));
         }
 //        닉네임, 이메일 변경
         user.updateProfile(updateRequestDto.getNickname(), updateRequestDto.getEmail());
@@ -155,39 +145,27 @@ public class UserService {
 
         return hasUpperCase && hasLowerCase && hasDigit && hasSpecialChar;
     }
-// ==============================================================================================
+
     @Transactional
     public void deleteUser(Long userId, HttpServletRequest request) {
         // 권한 검증 후 userId 찾기 ->
         User user = userRepository.findById(userId).orElseThrow(()->
-                new NoSuchElementException("not found user"));
+                new UserNotFoundException("not found user"));
         // JWT 토큰 헤더에서 추출
         String bearerToken = request.getHeader("Authorization");
-//        if (bearerToken == null || !bearerToken.startsWith("Bearer ")) {
-//            log.error("JWT 토큰 x");
-//            throw new IllegalArgumentException("you need to be in token");
-//        }
         String jwt = jwtUtil.substringToken(bearerToken);
-
-//        log.debug("JWT Token: {}", bearerToken);
-//        log.debug("Extract JWT: {}", jwt);
 
         // 토큰에서 Claim 추출
         Claims claims = jwtUtil.extractClaims(jwt);
-//        try{
-//            claims = jwtUtil.extractClaims(jwt);
-//        } catch (Exception e) {
-//            log.error("jwt 토큰 처리 오류", e);
-//            throw new SecurityException("JWT 토큰 처리 중 오류 발생",e);
-//        }
         String userRole = claims.get("userRole", String.class);
 
-        // 자신의 계정이나 ADMIN 권한을 가진 사용자인 경우에만 삭제 가능
+        // ADMIN 권한을 가진 사용자인 경우에만 삭제 가능
         if(!UserRole.ADMIN.name().equalsIgnoreCase(userRole)) {
-            throw new UserException("해당 계정을 삭제할 권한이 없습니다.");
+            throw new Forbidden("당신은 ADMIN 유저가 아닙니다.");
         }
 
-        userRepository.delete(user);
+        user.setIsDeleted(true);
+        userRepository.save(user);
     }
 
 

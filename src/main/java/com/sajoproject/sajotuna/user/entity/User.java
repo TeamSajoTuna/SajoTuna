@@ -3,7 +3,7 @@ package com.sajoproject.sajotuna.user.entity;
 import com.sajoproject.sajotuna.feed.entity.Feed;
 import com.sajoproject.sajotuna.common.Timestamped;
 import com.sajoproject.sajotuna.enums.UserRole;
-import com.sajoproject.sajotuna.following.entity.follow;
+import com.sajoproject.sajotuna.following.entity.Follow;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -33,6 +33,9 @@ public class User extends Timestamped {
     @Column(name = "email")
     private String email;
 
+    @Column(nullable = false)
+    private Boolean isDeleted = false;
+
     // Enum 을 내부적으로 STRING 형태로 돌 수 있도록 설정
     @Enumerated(EnumType.STRING)
     private UserRole userRole;
@@ -41,10 +44,10 @@ public class User extends Timestamped {
     private List<Feed> feed = new ArrayList<>();
 
     @OneToMany(mappedBy = "following", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<follow> following = new ArrayList<>();
+    private List<Follow> following = new ArrayList<>();
 
     @OneToMany(mappedBy = "followed", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<follow> followed = new ArrayList<>();
+    private List<Follow> followed = new ArrayList<>();
 
 
     public User(String nickname, String email, String pw, UserRole userRole) {
@@ -54,7 +57,11 @@ public class User extends Timestamped {
         this.userRole = userRole;
     }
 
-//    업데이트 비밀번호, 닉네임, 이메일
+    public User(Long followingId) {
+        this.userId = followingId;
+    }
+
+    //    업데이트 비밀번호, 닉네임, 이메일
     public void updatePw(String pw) {
         this.pw = pw;
     }
