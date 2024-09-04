@@ -3,7 +3,6 @@ package com.sajoproject.sajotuna.feed.entity;
 import com.sajoproject.sajotuna.comment.entity.Comment;
 import com.sajoproject.sajotuna.common.Timestamped;
 import com.sajoproject.sajotuna.feed.dto.feedCreateDto.FeedCreateDtoRequest;
-import com.sajoproject.sajotuna.following.entity.Follow;
 import com.sajoproject.sajotuna.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -40,11 +39,14 @@ public class Feed extends Timestamped {
     private List<Comment> comment = new ArrayList<>();
     
     // feedCreate 메서드에 사용
-    public Feed(FeedCreateDtoRequest requestDto) {
+    public Feed(FeedCreateDtoRequest requestDto, User user) {
         this.title = requestDto.getTitle();
         this.content = requestDto.getContent();
-        User user = new User();
-        user.setUserId(requestDto.getUserId()); // User 객체의 ID 설정
-        this.user = user;
+        this.user = user; // User 객체 설정
+    }
+
+    public void feedUpdate(String title, String content) {
+        this.title = title;
+        this.content = content;
     }
 }
