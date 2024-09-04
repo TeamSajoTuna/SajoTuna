@@ -5,6 +5,7 @@ package com.sajoproject.sajotuna.user.controller;
 import com.sajoproject.sajotuna.annotation.Auth;
 import com.sajoproject.sajotuna.config.JwtUtil;
 import com.sajoproject.sajotuna.exception.MethodArgumentNotValid;
+import com.sajoproject.sajotuna.user.dto.authUserDto.AuthUser;
 import com.sajoproject.sajotuna.user.dto.userDeleteDto.DeleteResponseDto;
 import com.sajoproject.sajotuna.user.dto.userGetProfileDto.GetProfileResponseDto;
 import com.sajoproject.sajotuna.user.dto.userSignInDto.SigninRequestDto;
@@ -70,8 +71,8 @@ public class UserController {
 
     // 요청 헤더에서 JWT 토큰 추출하여 삭제
     @DeleteMapping("/users/{userId}")
-    public ResponseEntity<DeleteResponseDto> delete(@PathVariable Long userId, HttpServletRequest request) {
-        userService.deleteUser(userId, request);
+    public ResponseEntity<DeleteResponseDto> delete(@PathVariable Long userId, @Auth AuthUser user) {
+        userService.deleteUser(userId, user);
         DeleteResponseDto responseDto = new DeleteResponseDto("정상 삭제 되었습니다.");
         return ResponseEntity.ok(responseDto);
     }

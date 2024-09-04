@@ -7,6 +7,7 @@ import com.sajoproject.sajotuna.exception.Conflict;
 import com.sajoproject.sajotuna.exception.Forbidden;
 import com.sajoproject.sajotuna.exception.UnAuthorized;
 import com.sajoproject.sajotuna.exception.UserNotFoundException;
+import com.sajoproject.sajotuna.user.dto.authUserDto.AuthUser;
 import com.sajoproject.sajotuna.user.dto.userGetProfileDto.GetProfileResponseDto;
 import com.sajoproject.sajotuna.user.dto.userSignInDto.SigninRequestDto;
 import com.sajoproject.sajotuna.user.dto.userSignupDto.SignupRequestDto;
@@ -146,25 +147,19 @@ public class UserService {
     }
 
     @Transactional
-    public void deleteUser(Long userId,HttpServletRequest request) {
+    public void deleteUser(Long userId, AuthUser user) {
         // 권한 검증 후 userId 찾기
-        User user = userRepository.findById(userId).orElseThrow(() ->
-                new UserNotFoundException("not found user"));
-        // JWT 토큰 헤더에서 추출
-        String bearerToken = request.getHeader("Authorization");
-        String jwt = jwtUtil.substringToken(bearerToken);
-
-        // 토큰에서 Claim 추출
-        Claims claims = jwtUtil.extractClaims(jwt);
-        String userRole = claims.get("userRole", String.class);
+        log.debug("=================================={}",user.getUserRole());
+        User userToDelete = userRepository.findById(userId).orElseThrow(() ->
+                new UserNotFoundException("not found user"));;
 
         // ADMIN 권한을 가진 사용자인 경우에만 삭제 가능
-        if (!UserRole.ADMIN.name().equalsIgnoreCase(userRole)) {
+        if (!UserRole.ADMIN.name().equalsIgnoreCase(user.getUserRole())) {
             throw new Forbidden("당신은 ADMIN 유저가 아닙니다.");
         }
 
-        user.setIsDeleted(true);
-        userRepository.save(user);
+        userToDelete.setIsDeleted(true);
+        userRepository.save(userToDelete);
     }
 
 
