@@ -1,5 +1,6 @@
 package com.sajoproject.sajotuna.feed.controller;
 
+import com.sajoproject.sajotuna.annotation.Auth;
 import com.sajoproject.sajotuna.feed.dto.feedCreateDto.FeedCreateDtoRequest;
 import com.sajoproject.sajotuna.feed.dto.feedCreateDto.FeedCreateDtoResponse;
 import com.sajoproject.sajotuna.feed.dto.feedDeleteDto.FeedDeleteResponseDto;
@@ -8,12 +9,14 @@ import com.sajoproject.sajotuna.feed.dto.feedPagingDto.FeedPagingDtoResponse;
 import com.sajoproject.sajotuna.feed.dto.feedUpdatdDto.FeedUpdateRequestDto;
 import com.sajoproject.sajotuna.feed.dto.feedUpdatdDto.FeedUpdateResponseDto;
 import com.sajoproject.sajotuna.feed.service.FeedService;
+import com.sajoproject.sajotuna.user.dto.authUserDto.AuthUser;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/feed")
@@ -34,36 +37,44 @@ public class FeedController {
     public Page<FeedPagingDtoResponse> getFeedPaging(
             @RequestParam(required = false, defaultValue = "0") int page,  // 기본 페이지 번호는 0
             @RequestParam(required = false, defaultValue = "10") int size,  // 기본 페이지 크기는 10
-            @RequestParam Long id
-    ) {
-        Page<FeedPagingDtoResponse> pagingFeed = feedService.getFeedPaging(page,size, id);
+            @Auth AuthUser authUser
+            ) {
+        Page<FeedPagingDtoResponse> pagingFeed = feedService.getFeedPaging(page,size, authUser.getId());
+
         return pagingFeed;
 
 
     }
 
-    //게시물 생성 - request로 title, content, userId 필요
+    //게시물 생성 - request로 title, content 필요
     @PostMapping
-    public ResponseEntity<FeedCreateDtoResponse> feedCreate(@RequestBody FeedCreateDtoRequest requestDto) {
-        return ResponseEntity.ok(feedService.feedCreate(requestDto));
+    public ResponseEntity<FeedCreateDtoResponse> feedCreate(
+            @RequestBody FeedCreateDtoRequest requestDto,
+            @Auth AuthUser authUser) {
+        FeedCreateDtoResponse responseDto = feedService.feedCreate(requestDto,authUser.getId());
+        return ResponseEntity.ok(responseDto);
     }
 
-    // 게시물 수정
-    @PutMapping("/feed/{id}")
+    // 게시물 수정 - request로 title, content 필요
+    @PutMapping("/{id}")
     public ResponseEntity<FeedUpdateResponseDto> feedUpdate(
-            @PathVariable Long id, @RequestBody FeedUpdateRequestDto requestDto) {
-        FeedUpdateResponseDto responseDto = feedService.feedUpdate(id, requestDto);
+            @PathVariable Long id,
+            @RequestBody FeedUpdateRequestDto requestDto,
+            @Auth AuthUser authUser) {
+        FeedUpdateResponseDto responseDto = feedService.feedUpdate(id, requestDto, authUser.getId());
         return ResponseEntity.ok(responseDto);
     }
 
     // 게시물 삭제
-    @DeleteMapping("/feed/{id}")
-    public ResponseEntity<FeedDeleteResponseDto> feedDelete(@PathVariable Long id) {
-        feedService.feedDelete(id);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<FeedDeleteResponseDto> feedDelete(
+            @PathVariable Long id,
+            @Auth AuthUser authUser) {
+
+        feedService.feedDelete(id, authUser.getId());
+
         FeedDeleteResponseDto responseDto = new FeedDeleteResponseDto("삭제 되었습니다.");
         return ResponseEntity.ok(responseDto);
 
     }
 }
-
-

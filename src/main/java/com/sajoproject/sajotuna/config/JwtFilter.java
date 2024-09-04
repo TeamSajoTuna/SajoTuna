@@ -50,6 +50,7 @@ public class JwtFilter implements Filter {
 
         // JWT 토큰 유효성 검증
         if (bearerJwt == null || !bearerJwt.startsWith("Bearer ")) {
+            log.error("Authorization header is missing or not in Bearer format.");
             // 토큰이 없는 경우 400을 반환
             httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "JWT 토큰이 필요합니다.");
             return;
@@ -67,7 +68,7 @@ public class JwtFilter implements Filter {
             request.setAttribute("userRole",claims.get("userRole",String.class));
 
             // 관리자 권한이 필요한 경로 설정
-            List<String> allowedMethods = Arrays.asList("PUT", "DELETE");
+            List<String> allowedMethods = Arrays.asList("DELETE");
             String pathPrefix = "/users/";
 
             // 경로와 메서드 체크 및 관리자 권한이 필요한 경로인지 확인 -> 권한 X 일 경우 403 리턴

@@ -115,10 +115,7 @@ public class UserService {
             String currentPassword = user.getPw();
             String newPassword = updateRequestDto.getNewPassword();
 
-//            비밀번호 형식 확인
-            if (!isValidPasswordFormat(newPassword)) {
-                throw new IllegalArgumentException("비밀번호 형식이 맞지 않습니다.");
-            }
+
 //            동일한 비밀번호로 변경 하는지 확인
             if (passwordEncoder.matches(newPassword, currentPassword)) {
                 throw new IllegalArgumentException("현재 패스워드와 변경하려는 패스워드가 같습니다.");
@@ -141,22 +138,7 @@ public class UserService {
                 updatedUser.getEmail());
     }
 
-    /*
-    *   패스워드 형식
-    * - 대소문자 포함 영문 + 숫자 + 특수문자를 최소 1글자씩 포함합니다.
-      - 비밀번호는 최소 8글자 이상이어야 합니다
-    */
-    private boolean isValidPasswordFormat(String pw) {
-        if (pw.length() < 8) {
-            return false;
-        }
-        boolean hasUpperCase = pw.chars().anyMatch(Character::isUpperCase);
-        boolean hasLowerCase = pw.chars().anyMatch(Character::isLowerCase);
-        boolean hasDigit = pw.chars().anyMatch(Character::isDigit);
-        boolean hasSpecialChar = pw.chars().anyMatch(ch -> "!@#$%^&*()-+=<>?~".indexOf(ch) >= 0);
 
-        return hasUpperCase && hasLowerCase && hasDigit && hasSpecialChar;
-    }
 
     @Transactional
     public void deleteUser(Long userId, AuthUser user) {
