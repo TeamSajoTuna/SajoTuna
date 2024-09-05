@@ -11,6 +11,7 @@ import com.sajoproject.sajotuna.feed.entity.Feed;
 import com.sajoproject.sajotuna.feed.repository.FeedRepository;
 import com.sajoproject.sajotuna.following.entity.Follow;
 import com.sajoproject.sajotuna.following.repository.FollowingRepository;
+import com.sajoproject.sajotuna.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,9 +33,16 @@ public class FeedService {
     public FeedGetFeedByIdDtoResponse getFeedById(Long id) {
 
         Feed feed = feedRepository.findById(id).orElseThrow(() -> new BadRequestException("존재하지 않는 feed_id"));
+
+        if (feed.getUser() ==null){
+            throw new BadRequestException("Feed 객체의 User 정보가 없습니다.");
+        }
+        feed.setViewCount(feed.getViewCount()+1);
+
         FeedGetFeedByIdDtoResponse resFeed = new FeedGetFeedByIdDtoResponse(feed);
         return resFeed;
     }
+
 
     @Transactional
     public Page<FeedPagingDtoResponse> getFeedPaging(int page, int size, Long userId) {
@@ -57,31 +65,50 @@ public class FeedService {
 
 
     @Transactional
-    public FeedCreateDtoResponse feedCreate(FeedCreateDtoRequest requestDto) {
+    public FeedCreateDtoResponse feedCreate(FeedCreateDtoRequest requestDto, Long userId) {
+        User user = new User();
+        user.setUserId(userId);
 
-        Feed feed = new Feed(requestDto);
+        Feed feed = new Feed(requestDto, user);
         feedRepository.save(feed);
+
         return new FeedCreateDtoResponse(feed);
     }
 
-    public FeedUpdateResponseDto feedUpdate(Long feedId, FeedUpdateRequestDto requestDto) {
+    // 게시물 수정
+    @Transactional
+    public FeedUpdateResponseDto feedUpdate(
+            Long feedId, FeedUpdateRequestDto requestDto, Long currentUserId) {
 
         Feed feed = feedRepository.findById(feedId)
-                .orElseThrow(() -> new IllegalArgumentException("ID를 찾을 수 없습니다" + feedId));
+                .orElseThrow(() -> new IllegalArgumentException("해당 ID의 게시물을 찾을 수 없습니다" + feedId));
 
-        FeedUpdateResponseDto responseDto = new FeedUpdateResponseDto(
+        if (!feed.getUser().getUserId().equals(currentUserId)) {
+            throw new IllegalArgumentException("게시물 수정 권한이 없습니다.");
+        }
+
+        feed.feedUpdate(requestDto.getTitle(), requestDto.getContent());
+        feedRepository.save(feed);
+
+        return new FeedUpdateResponseDto(
                 feed.getFeedId(),
                 feed.getTitle(),
                 feed.getContent(),
-                "게시글이 수정되었습니다."
+                "게시물이 수정되었습니다."
         );
-        return responseDto;
     }
 
-    public void feedDelete(Long id) {
+    // 게시물 삭제
+    @Transactional
+    public void feedDelete(Long id, Long currentUserId) {
         Feed feed = feedRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("ID를 찾을 수 없습니다." + id));
+                .orElseThrow(() -> new IllegalArgumentException("해당 ID의 게시물을 찾을 수 없습니다." + id));
 
+        if (!feed.getUser().getUserId().equals(currentUserId)) {
+            throw new IllegalArgumentException("게시물 삭제 권한이 없습니다.");
+        }
         feedRepository.delete(feed);
     }
+
+
 }
