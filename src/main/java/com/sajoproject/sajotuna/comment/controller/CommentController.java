@@ -22,10 +22,12 @@ import java.util.List;
 public class CommentController {
 
     private final CommentService commentService;
-
-    // 댓글 생성 : content, feedId, userId 필요
+/*  댓글 생성 : content, feedId 필요
+    대댓글 생성 : content, feedId, parentCommentId 필요.
+    parentCommentId에는 commentId(대댓글을 작성할 댓글)을 입력. */
     @PostMapping
-    public ResponseEntity<PostCommentDtoResponse> postComment(@RequestBody PostCommentDtoRequest reqDto, @Auth AuthUser authUser){
+    public ResponseEntity<PostCommentDtoResponse> postComment(
+            @RequestBody PostCommentDtoRequest reqDto, @Auth AuthUser authUser){
         reqDto.setUserId(authUser.getId());
         PostCommentDtoResponse resDto = commentService.postComment(reqDto);
         return ResponseEntity.ok().body(resDto);
@@ -33,14 +35,13 @@ public class CommentController {
 
     @GetMapping
     public ResponseEntity<List<GetCommentFromFeedDtoResponse>> getCommentFromFeed(
-            @RequestBody GetCommentFromFeedDtoRequest reqDto){
-        System.out.println("reqDto.getFeedId() = " + reqDto.getFeedId());
-        List<GetCommentFromFeedDtoResponse> resDto = commentService.getCommentFromFeed(reqDto);
+            @RequestParam(required = true, defaultValue = "0") Long feedId) {
+        System.out.println("reqDto.getFeedId() = " + feedId);
+        List<GetCommentFromFeedDtoResponse> resDto = commentService.getCommentFromFeed(feedId);
         return ResponseEntity.ok().body(resDto);
-
     }
 
-    // 댓글 수정
+    // 댓글 수정 id=commentId
     @PutMapping("/{id}")
     public ResponseEntity<CommentUpdateResponseDto> commentUpdate(
             @PathVariable Long id,

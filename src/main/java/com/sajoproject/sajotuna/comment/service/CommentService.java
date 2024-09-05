@@ -8,8 +8,6 @@ import com.sajoproject.sajotuna.comment.dto.postCommentDto.PostCommentDtoRequest
 import com.sajoproject.sajotuna.comment.dto.postCommentDto.PostCommentDtoResponse;
 import com.sajoproject.sajotuna.comment.entity.Comment;
 import com.sajoproject.sajotuna.comment.repository.CommentRepository;
-import com.sajoproject.sajotuna.user.entity.User;
-import com.sajoproject.sajotuna.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,18 +20,25 @@ import java.util.stream.Collectors;
 public class CommentService {
 
     private final CommentRepository commentRepository;
-    private final UserRepository userRepository;
 
     @Transactional
     public PostCommentDtoResponse postComment(PostCommentDtoRequest reqDto){
+        Comment replyComment = null;
+        if (reqDto.getReplyCommentId() !=null) {
+            replyComment = commentRepository.findById(reqDto.getReplyCommentId())
+                    .orElseThrow(() -> new IllegalArgumentException("댓글을 찾을 수 없습니다. : " + reqDto.getReplyCommentId()));
+        }
 
-        Comment comment = new Comment(reqDto);
-        PostCommentDtoResponse resDto =  new PostCommentDtoResponse(commentRepository.save(comment));
+        Comment comment = new Comment(reqDto, replyComment);
+        Comment savedComment = commentRepository.save(comment); //체크
+        System.out.println("Saved Comment: " + savedComment);
+
+        PostCommentDtoResponse resDto =  new PostCommentDtoResponse(savedComment);
         return resDto;
     }
 
-    public  List<GetCommentFromFeedDtoResponse> getCommentFromFeed(GetCommentFromFeedDtoRequest reqDto){
-        List<Comment> commentList = commentRepository.findByFeed_FeedId(reqDto.getFeedId());
+    public  List<GetCommentFromFeedDtoResponse> getCommentFromFeed(Long feedId){
+        List<Comment> commentList = commentRepository.findByFeed_FeedId(feedId);
 
         List<GetCommentFromFeedDtoResponse> resDto = commentList.stream()
                 .map(GetCommentFromFeedDtoResponse::new)
@@ -53,16 +58,25 @@ public class CommentService {
             throw new IllegalArgumentException("댓글 수정 권한이 없습니다.");
         }
 
+        if (comment.getReplyComment() != null) {
+            Comment parentComment = commentRepository.findById(comment.getReplyComment().getCommentId())
+                    .orElseThrow(() ->new IllegalArgumentException("대댓글을 달 수 있는 댓글이 없습니다."));
+
+            if  (!parentComment.getUser().getUserId().equals(currentUserId)) {
+                throw new IllegalArgumentException("댓글 수정 권한이 없습니다.");
+            }
+        }
+
         comment.update(requestDto);
         Comment updatedComment = commentRepository.save(comment);
 
-        CommentUpdateResponseDto responseDto = new CommentUpdateResponseDto(
+        return new CommentUpdateResponseDto (
                 updatedComment.getCommentId(),
                 updatedComment.getContent(),
                 updatedComment.getUser().getUserId(),
-                updatedComment.getFeed().getFeedId()
+                updatedComment.getFeed().getFeedId(),
+                updatedComment.getReplyComment() !=null ? updatedComment.getReplyComment().getCommentId() : null
         );
-        return responseDto;
     }
 
     // 댓글 삭제
