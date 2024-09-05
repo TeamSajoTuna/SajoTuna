@@ -10,4 +10,6 @@ public interface MessageRepository extends JpaRepository<Message,Long> {
     Message findByMessageIdAndReceiverIdAndIsDeleted( Long  messageId, User receiverId, boolean trueValue);
 
     List<Message> findByReceiverId_UserIdAndIsDeleted(Long id, boolean f);
+
+    List<Message> findBySenderId_UserId(Long id);
 }
