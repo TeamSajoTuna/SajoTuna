@@ -1,5 +1,6 @@
 package com.sajoproject.sajotuna.comment.controller;
 
+import com.sajoproject.sajotuna.annotation.Auth;
 import com.sajoproject.sajotuna.comment.dto.getCommentFromFeedDto.GetCommentFromFeedDtoRequest;
 import com.sajoproject.sajotuna.comment.dto.getCommentFromFeedDto.GetCommentFromFeedDtoResponse;
 import com.sajoproject.sajotuna.comment.dto.commentDeleteDto.CommentDeleteResponseDto;
@@ -8,6 +9,7 @@ import com.sajoproject.sajotuna.comment.dto.commentUpdateDto.CommentUpdateRespon
 import com.sajoproject.sajotuna.comment.dto.postCommentDto.PostCommentDtoRequest;
 import com.sajoproject.sajotuna.comment.dto.postCommentDto.PostCommentDtoResponse;
 import com.sajoproject.sajotuna.comment.service.CommentService;
+import com.sajoproject.sajotuna.user.dto.authUserDto.AuthUser;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -23,9 +25,8 @@ public class CommentController {
     private final CommentService commentService;
 
     @PostMapping
-    public ResponseEntity<PostCommentDtoResponse> postComment(@RequestBody PostCommentDtoRequest reqDto){
-        System.out.println("reqDto = "+ reqDto);
-
+    public ResponseEntity<PostCommentDtoResponse> postComment(@RequestBody PostCommentDtoRequest reqDto, @Auth AuthUser authUser){
+        reqDto.setUserId(authUser.getId());
         PostCommentDtoResponse resDto = commentService.postComment(reqDto);
         return ResponseEntity.ok().body(resDto);
     }
