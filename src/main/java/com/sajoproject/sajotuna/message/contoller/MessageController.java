@@ -4,11 +4,14 @@ import com.sajoproject.sajotuna.message.dto.createMessageDto.CreateMessageDtoReq
 import com.sajoproject.sajotuna.message.dto.createMessageDto.CreateMessageDtoResponse;
 import com.sajoproject.sajotuna.message.dto.deleteMessageDto.DeleteMessageDtoRequest;
 import com.sajoproject.sajotuna.message.dto.deleteMessageDto.DeleteMessageDtoResponse;
+import com.sajoproject.sajotuna.message.dto.getRecievedBoxDto.GetReceivedBoxDtoResponse;
 import com.sajoproject.sajotuna.message.service.MessageService;
 import com.sajoproject.sajotuna.user.dto.authUserDto.AuthUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @RestController
@@ -38,5 +41,15 @@ public class MessageController {
         return ResponseEntity.ok().body("쪽지 삭제 완료");
 
     }
+
+    @GetMapping("/received-box")
+    public ResponseEntity<List<GetReceivedBoxDtoResponse>> getReceivedBox(@Auth AuthUser authUser){
+        List<GetReceivedBoxDtoResponse> resDto = messageService.getReceivedBox(authUser.getId());
+        return ResponseEntity.ok().body(resDto);
+
+    }
+
+
+
 
 }
