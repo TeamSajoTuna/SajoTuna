@@ -3,6 +3,8 @@ package com.sajoproject.sajotuna.likes.controller;
 import com.sajoproject.sajotuna.annotation.Auth;
 import com.sajoproject.sajotuna.likes.dto.createLikesDto.CreateLikesDtoRequest;
 import com.sajoproject.sajotuna.likes.dto.createLikesDto.CreateLikesDtoResponse;
+import com.sajoproject.sajotuna.likes.dto.deleteLikesDto.DeleteLikesDtoRequest;
+import com.sajoproject.sajotuna.likes.dto.deleteLikesDto.DeleteLikesDtoResponse;
 import com.sajoproject.sajotuna.likes.service.LikesService;
 import com.sajoproject.sajotuna.user.dto.authUserDto.AuthUser;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,12 @@ public class LikesController {
     }
 
     //좋아요 삭제
+    @DeleteMapping
+    public ResponseEntity<DeleteLikesDtoResponse> deleteLikes (@RequestBody DeleteLikesDtoRequest request, @Auth AuthUser authUser ) {
+        likesService.deleteLikes(request,authUser);
+        DeleteLikesDtoResponse response = new DeleteLikesDtoResponse("좋아요가 삭제되었습니다.");
+        return ResponseEntity.ok(response);
+    }
 
 
 }
