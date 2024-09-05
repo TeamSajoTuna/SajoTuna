@@ -4,6 +4,8 @@ import com.sajoproject.sajotuna.exception.BadRequestException;
 import com.sajoproject.sajotuna.feed.dto.feedCreateDto.FeedCreateDtoRequest;
 import com.sajoproject.sajotuna.feed.dto.feedCreateDto.FeedCreateDtoResponse;
 import com.sajoproject.sajotuna.feed.dto.feedGetFeedByIdDto.FeedGetFeedByIdDtoResponse;
+import com.sajoproject.sajotuna.feed.dto.feedLikeDto.CountDto;
+import com.sajoproject.sajotuna.feed.dto.feedLikeDto.FeedLikeCountResponseDto;
 import com.sajoproject.sajotuna.feed.dto.feedPagingDto.FeedPagingDtoResponse;
 import com.sajoproject.sajotuna.feed.dto.feedUpdatdDto.FeedUpdateRequestDto;
 import com.sajoproject.sajotuna.feed.dto.feedUpdatdDto.FeedUpdateResponseDto;
@@ -11,6 +13,7 @@ import com.sajoproject.sajotuna.feed.entity.Feed;
 import com.sajoproject.sajotuna.feed.repository.FeedRepository;
 import com.sajoproject.sajotuna.following.entity.Follow;
 import com.sajoproject.sajotuna.following.repository.FollowingRepository;
+import com.sajoproject.sajotuna.likes.repository.LikesRepository;
 import com.sajoproject.sajotuna.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -19,7 +22,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,6 +33,7 @@ public class FeedService {
 
     private final FeedRepository feedRepository;
     private final FollowingRepository followingRepository;
+    private final LikesRepository likesRepository;
 
     @Transactional
     public FeedGetFeedByIdDtoResponse getFeedById(Long id) {
@@ -108,6 +114,31 @@ public class FeedService {
             throw new IllegalArgumentException("게시물 삭제 권한이 없습니다.");
         }
         feedRepository.delete(feed);
+    }
+//   인기게시물 좋아요
+    @Transactional(readOnly = true)
+    public List<FeedPagingDtoResponse> getTop10Feeds() {
+        Pageable pageable = PageRequest.of(0, 10); // 페이지 번호 0, 페이지 크기 10
+        List<Feed> topFeeds = feedRepository.findTop10Feeds(pageable);
+        List<FeedPagingDtoResponse> topFeedList = new ArrayList<>();
+
+        for (Feed feed : topFeeds) {
+            FeedPagingDtoResponse dto = new FeedPagingDtoResponse(feed);
+            long likeCount = likesRepository.countByFeed(feed); // 좋아요 수 계산
+            dto.setLikeCount(likeCount);
+            topFeedList.add(dto);
+        }
+        return topFeedList;
+    }
+    //    모든 게시물 좋아요
+    @Transactional(readOnly = true)
+    public FeedLikeCountResponseDto getLikeCountByFeedId(Long feedId) {
+        Optional<CountDto> result = feedRepository.countLikesByFeedId(feedId);
+        if (result == null) {
+            throw new BadRequestException("게시글을 찾을 수 없습니다.");
+        }
+        Long likeCount = result.get().getCnt();
+        return new FeedLikeCountResponseDto(feedId, likeCount);
     }
 
 
