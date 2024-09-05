@@ -5,6 +5,7 @@ import com.sajoproject.sajotuna.message.dto.createMessageDto.CreateMessageDtoReq
 import com.sajoproject.sajotuna.message.dto.createMessageDto.CreateMessageDtoResponse;
 import com.sajoproject.sajotuna.message.dto.deleteMessageDto.DeleteMessageDtoRequest;
 import com.sajoproject.sajotuna.message.dto.getRecievedBoxDto.GetReceivedBoxDtoResponse;
+import com.sajoproject.sajotuna.message.dto.getSendBoxDto.GetSendBoxDtoResponse;
 import com.sajoproject.sajotuna.message.entity.Message;
 import com.sajoproject.sajotuna.message.repository.MessageRepository;
 import com.sajoproject.sajotuna.user.dto.authUserDto.AuthUser;
@@ -24,8 +25,8 @@ public class MessageService {
     public CreateMessageDtoResponse createMessage(CreateMessageDtoRequest reqDto){
         Message message = new Message(reqDto);
         Message saveMessage = messageRepository.save(message);
-        return new CreateMessageDtoResponse(saveMessage);
 
+        return new CreateMessageDtoResponse(saveMessage);
     }
 
     public void deleteMessage(AuthUser authUser, DeleteMessageDtoRequest reqDto){
@@ -37,13 +38,18 @@ public class MessageService {
         }
         deleteMessage.setIsDeleted(true);
         messageRepository.save(deleteMessage);
-
-
     }
 
     public List<GetReceivedBoxDtoResponse> getReceivedBox(Long id){
         List<Message> messageList = messageRepository.findByReceiverId_UserIdAndIsDeleted(id,false);
+
         return messageList.stream().map(GetReceivedBoxDtoResponse::new).toList();
+    }
+
+    public List<GetSendBoxDtoResponse> getSendBox(Long id){
+        List<Message> messageList = messageRepository.findBySenderId_UserId(id);
+
+        return messageList.stream().map(GetSendBoxDtoResponse::new).toList();
     }
 
 }
