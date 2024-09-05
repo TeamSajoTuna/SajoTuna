@@ -37,6 +37,7 @@ public class Feed extends Timestamped {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+
     @OneToMany(mappedBy = "feed", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comment = new ArrayList<>();
 

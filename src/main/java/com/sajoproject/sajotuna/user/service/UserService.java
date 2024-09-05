@@ -7,6 +7,8 @@ import com.sajoproject.sajotuna.exception.Conflict;
 import com.sajoproject.sajotuna.exception.Forbidden;
 import com.sajoproject.sajotuna.exception.UnAuthorized;
 import com.sajoproject.sajotuna.exception.UserNotFoundException;
+import com.sajoproject.sajotuna.feed.entity.Feed;
+import com.sajoproject.sajotuna.feed.repository.FeedRepository;
 import com.sajoproject.sajotuna.refresh.entity.RefreshToken;
 import com.sajoproject.sajotuna.refresh.repository.RefreshTokenRepository;
 import com.sajoproject.sajotuna.user.dto.TokenResponseDto;
@@ -18,12 +20,12 @@ import com.sajoproject.sajotuna.user.dto.userUpdateProfileDto.UpdateRequestDto;
 import com.sajoproject.sajotuna.user.dto.userUpdateProfileDto.UpdateResponseDto;
 import com.sajoproject.sajotuna.user.entity.User;
 import com.sajoproject.sajotuna.user.repository.UserRepository;
-import io.jsonwebtoken.Claims;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +36,7 @@ public class UserService {
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final FeedRepository feedRepository;
 
     // Signup
     @Transactional
@@ -87,20 +90,27 @@ public class UserService {
         return new TokenResponseDto(accessToken,refreshToken);
     }
 
-    //    프로필 조회  getProfile
+    // 프로필 조회  getProfile
+    // 자신이 작성한 피드의 총 좋아요 갯수로 인한 등급 포함
+    @Transactional
     public GetProfileResponseDto getProfile(Long userId, boolean isOwnProfile) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new NullPointerException("not found userId"));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NullPointerException("not found userId"));
 
-//       본인 프로필이면 Id, 닉네임, 이메일 반환, 아니라면 Id,닉네임만 반환
+        String grade = userGrade(userId);
+
+        //본인 프로필이면 Id, 닉네임, 이메일, 좋아요등급 반환, 아니라면 Id,닉네임만 반환
         if (isOwnProfile) {
             return new GetProfileResponseDto(
                     user.getUserId(),
                     user.getNickname(),
-                    user.getEmail());
+                    user.getEmail(),
+                    grade);
         } else {
             return new GetProfileResponseDto(
                     user.getUserId(),
                     user.getNickname(),
+                    null,
                     null);
         }
     }
@@ -156,5 +166,33 @@ public class UserService {
         userRepository.save(userToDelete);
     }
 
+
+//    // 자신이 작성한 피드의 총 좋아요 갯수로 인한 등급 산정
+    @Transactional
+    public String userGrade(Long userId) {
+        //만약 이 유저가 작성한 피드가 없을 경우 - 기본 STAR1
+        if(!feedRepository.existsByUserId(userId)) {
+            return "STAR1";
+        }
+
+        // 한 피드의 게시글 좋아요 갯수를 구하는 객체를 likesCount 라고 치면 이 유저가 작성한 피드를 찾아서 likesCount 을 다 더한다
+        List<Feed> feeds = feedRepository.findByUserId(userId);
+        int sum = 0;
+
+//        for (Feed feed : feeds) {
+//            sum += feed.getLikesCount();
+//        }
+
+        //2개 이하(0,1,2) - Star1 / 2개 초과 5개 이하(3,4,5) - Star2 / 5개 초과(6~) - Star3
+        String grade;
+        if (sum <= 2) {
+            grade = "STAR1";
+        } else if (sum <= 5) {
+            grade = "Star2";
+        } else {
+            grade = "Star3";
+        }
+        return grade;
+    }
 
 }
