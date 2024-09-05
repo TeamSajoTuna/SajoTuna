@@ -18,6 +18,10 @@ import org.springframework.util.ObjectUtils;
 
 import java.util.Objects;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 @Service
 @RequiredArgsConstructor
 public class LikesService {
@@ -80,4 +84,5 @@ public class LikesService {
 
         likesRepository.delete(likes);
     }
+
 }
