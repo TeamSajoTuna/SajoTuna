@@ -3,7 +3,6 @@ package com.sajoproject.sajotuna.feed.entity;
 import com.sajoproject.sajotuna.comment.entity.Comment;
 import com.sajoproject.sajotuna.common.Timestamped;
 import com.sajoproject.sajotuna.feed.dto.feedCreateDto.FeedCreateDtoRequest;
-import com.sajoproject.sajotuna.following.entity.Follow;
 import com.sajoproject.sajotuna.likes.entity.Likes;
 import com.sajoproject.sajotuna.user.entity.User;
 import jakarta.persistence.*;

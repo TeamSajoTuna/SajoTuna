@@ -12,10 +12,8 @@ import com.sajoproject.sajotuna.feed.dto.feedUpdatdDto.FeedUpdateRequestDto;
 import com.sajoproject.sajotuna.feed.dto.feedUpdatdDto.FeedUpdateResponseDto;
 import com.sajoproject.sajotuna.feed.service.FeedService;
 import com.sajoproject.sajotuna.user.dto.authUserDto.AuthUser;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,7 +45,6 @@ public class FeedController {
         return pagingFeed;
 
     }
-
 
     //게시물 생성 - request로 title, content 필요
     @PostMapping
@@ -87,8 +84,9 @@ public class FeedController {
         List<FeedPagingDtoResponse> top10Feeds = feedService.getTop10Feeds();
         return ResponseEntity.ok(top10Feeds);
     }
-//  모든 게시물 좋아요 개수 카운트
-    @GetMapping("/likecount")
+
+    // 한 게시물의 총 좋아요 개수 카운트
+    @GetMapping("/likescount")
     public ResponseEntity<FeedLikeCountResponseDto> getLikeCountByFeedId(@RequestBody FeedLikeCountRequestDto requestDto) {
     FeedLikeCountResponseDto feedLikeCountDto = feedService.getLikeCountByFeedId(requestDto.getFeedId());
     return ResponseEntity.ok(feedLikeCountDto);

@@ -1,10 +1,9 @@
 package com.sajoproject.sajotuna.user.entity;
 
-import com.sajoproject.sajotuna.feed.entity.Feed;
 import com.sajoproject.sajotuna.common.Timestamped;
 import com.sajoproject.sajotuna.enums.UserRole;
+import com.sajoproject.sajotuna.feed.entity.Feed;
 import com.sajoproject.sajotuna.following.entity.Follow;
-import com.sajoproject.sajotuna.likes.entity.Likes;
 import com.sajoproject.sajotuna.message.entity.Message;
 import jakarta.persistence.*;
 import lombok.Getter;

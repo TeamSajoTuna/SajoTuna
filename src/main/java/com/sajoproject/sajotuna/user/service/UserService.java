@@ -7,8 +7,10 @@ import com.sajoproject.sajotuna.exception.Conflict;
 import com.sajoproject.sajotuna.exception.Forbidden;
 import com.sajoproject.sajotuna.exception.UnAuthorized;
 import com.sajoproject.sajotuna.exception.UserNotFoundException;
+import com.sajoproject.sajotuna.feed.dto.feedLikeDto.FeedLikeCountResponseDto;
 import com.sajoproject.sajotuna.feed.entity.Feed;
 import com.sajoproject.sajotuna.feed.repository.FeedRepository;
+import com.sajoproject.sajotuna.feed.service.FeedService;
 import com.sajoproject.sajotuna.refresh.entity.RefreshToken;
 import com.sajoproject.sajotuna.refresh.repository.RefreshTokenRepository;
 import com.sajoproject.sajotuna.user.dto.TokenResponseDto;
@@ -37,6 +39,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final FeedRepository feedRepository;
+    private final FeedService feedService;
 
     // Signup
     @Transactional
@@ -167,26 +170,27 @@ public class UserService {
     }
 
 
-//    // 자신이 작성한 피드의 총 좋아요 갯수로 인한 등급 산정
+    // 자신이 작성한 피드의 총 좋아요 갯수로 인한 등급 산정
     @Transactional
     public String userGrade(Long userId) {
         //만약 이 유저가 작성한 피드가 없을 경우 - 기본 STAR1
-        if(!feedRepository.existsByUserId(userId)) {
-            return "STAR1";
+        User user = userRepository.findById(userId).orElseThrow();
+        if(!feedRepository.existsByUser(user)) {
+            return "Star1";
         }
 
-        // 한 피드의 게시글 좋아요 갯수를 구하는 객체를 likesCount 라고 치면 이 유저가 작성한 피드를 찾아서 likesCount 을 다 더한다
-        List<Feed> feeds = feedRepository.findByUserId(userId);
+        List<Feed> feeds = feedRepository.findByUser(user);
         int sum = 0;
-
-//        for (Feed feed : feeds) {
-//            sum += feed.getLikesCount();
-//        }
+        // FeedService의 메서드를 호출하여 좋아요 수를 가져옴
+        for (Feed feed : feeds) {
+            FeedLikeCountResponseDto likeCountDto = feedService.getLikeCountByFeedId(feed.getFeedId());
+            sum += likeCountDto.getLikeCount();
+        }
 
         //2개 이하(0,1,2) - Star1 / 2개 초과 5개 이하(3,4,5) - Star2 / 5개 초과(6~) - Star3
         String grade;
         if (sum <= 2) {
-            grade = "STAR1";
+            grade = "Star1";
         } else if (sum <= 5) {
             grade = "Star2";
         } else {

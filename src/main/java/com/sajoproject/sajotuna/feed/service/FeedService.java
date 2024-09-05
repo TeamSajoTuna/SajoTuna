@@ -136,7 +136,8 @@ public class FeedService {
         feed.setIsDeleted(true);
         feedRepository.save(feed);
     }
-//   인기게시물 좋아요
+
+    //   인기게시물 좋아요
     @Transactional(readOnly = true)
     public List<FeedPagingDtoResponse> getTop10Feeds() {
         Pageable pageable = PageRequest.of(0, 10); // 페이지 번호 0, 페이지 크기 10
@@ -151,7 +152,8 @@ public class FeedService {
         }
         return topFeedList;
     }
-    //    모든 게시물 좋아요
+
+    // 한 피드의 모든 좋아요 수
     @Transactional(readOnly = true)
     public FeedLikeCountResponseDto getLikeCountByFeedId(Long feedId) {
         Optional<CountDto> result = feedRepository.countLikesByFeedId(feedId);
