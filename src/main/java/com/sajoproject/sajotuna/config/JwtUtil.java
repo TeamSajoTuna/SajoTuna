@@ -2,6 +2,7 @@ package com.sajoproject.sajotuna.config;
 
 import com.sajoproject.sajotuna.enums.UserRole;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -21,7 +22,8 @@ import java.util.Date;
 public class JwtUtil {
 
     private static final String BEARER_PREFIX = "Bearer ";
-    private static final long TOKEN_TIME = 60 * 60 * 1000L; // 60분
+    private static final long ACCESS_TOKEN_TIME = 3 * 24 * 60 * 60 * 1000L; // 10초
+    private static final long REFRESH_TOKEN_TIME = 7 * 24 * 60 * 60 * 1000L;  // 7일
 
     @Value("${jwt.secret.key}")
     private String secretKey;
@@ -38,8 +40,8 @@ public class JwtUtil {
         key = Keys.hmacShaKeyFor(bytes);
     }
 
-    // JWT 토큰 생성
-    public String createToken(Long userId, String username, String email, UserRole userRole) {
+    // Access Token 생성
+    public String createAccessToken(Long userId, String username, String email, UserRole userRole) {
         Date date = new Date();
 
         return BEARER_PREFIX +
@@ -48,11 +50,23 @@ public class JwtUtil {
                         .claim("username", username)
                         .claim("email", email)
                         .claim("userRole", userRole.name())
-                        .setExpiration(new Date(date.getTime() + TOKEN_TIME))
+                        .setExpiration(new Date(date.getTime() + ACCESS_TOKEN_TIME))
                         .setIssuedAt(date) // 발급일
                         .signWith(key, signatureAlgorithm) // 암호화 알고리즘
-                        .compact();
-}
+                        .compact(); // JWT 문자열 반환
+    }
+
+    // Refresh Token 생성
+    public String createRefreshToken(Long userId){
+        Date date = new Date();
+        return Jwts.builder()
+                .setSubject(String.valueOf(userId))
+                .setExpiration(new Date(date.getTime() + REFRESH_TOKEN_TIME))
+                .setIssuedAt(date)
+                .signWith(key, signatureAlgorithm)
+                .compact();
+    }
+
 
 // JWT 추출
     public String substringToken(String tokenValue) {
@@ -60,7 +74,6 @@ public class JwtUtil {
         if (StringUtils.hasText(tokenValue) && tokenValue.startsWith(BEARER_PREFIX)) {
             return tokenValue.substring(7);
         }
-        log.error("Not Found Token");
         throw new NullPointerException("Not Found Token");
     }
 
@@ -71,6 +84,18 @@ public class JwtUtil {
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
+    }
+
+    // JWT 토큰 검증
+    public boolean validateToken(String token){
+        try{
+            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            // 예외 발생 시 로그 남기기, 보안조치(경고 알림, 사용자계정 잠금)
+            log.error("jwt 토큰 검증 실패: {}", e.getMessage());
+            return false;
+        }
     }
 
 //    사용자 ID jwt토큰 추출

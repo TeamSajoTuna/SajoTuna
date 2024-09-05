@@ -7,6 +7,9 @@ import com.sajoproject.sajotuna.exception.Conflict;
 import com.sajoproject.sajotuna.exception.Forbidden;
 import com.sajoproject.sajotuna.exception.UnAuthorized;
 import com.sajoproject.sajotuna.exception.UserNotFoundException;
+import com.sajoproject.sajotuna.refresh.entity.RefreshToken;
+import com.sajoproject.sajotuna.refresh.repository.RefreshTokenRepository;
+import com.sajoproject.sajotuna.user.dto.TokenResponseDto;
 import com.sajoproject.sajotuna.user.dto.authUserDto.AuthUser;
 import com.sajoproject.sajotuna.user.dto.userGetProfileDto.GetProfileResponseDto;
 import com.sajoproject.sajotuna.user.dto.userSignInDto.SigninRequestDto;
@@ -30,10 +33,11 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     // Signup
     @Transactional
-    public String signup(SignupRequestDto signupRequestDto) {
+    public void signup(SignupRequestDto signupRequestDto) {
         if (userRepository.existsByEmail(signupRequestDto.getEmail())) {
             throw new Conflict("중복된 이메일입니다.");
         }
@@ -45,8 +49,7 @@ public class UserService {
                 encodedPassword,
                 userRole
         );
-        User savedUser = userRepository.save(newUser);
-        return jwtUtil.createToken(savedUser.getUserId(), savedUser.getNickname(), savedUser.getEmail(), savedUser.getUserRole());
+        userRepository.save(newUser);
     }
 
 
@@ -60,19 +63,29 @@ public class UserService {
 
     // SignIn
     @Transactional
-    public String signIn(SigninRequestDto requestDto) {
+    public TokenResponseDto signIn(SigninRequestDto requestDto) {
         User user = userRepository.findByEmail(requestDto.getEmail()).orElseThrow(
                 () -> new UserNotFoundException("not found"));
         // 로그인 시 이메일과 비밀번호가 일치하지 않을 경우 401 반환
         if (!(user.getEmail().equalsIgnoreCase(requestDto.getEmail())) || !passwordEncoder.matches(requestDto.getPw(), user.getPw())) {
             throw new UnAuthorized("incorrect email or password");
         }
-        return jwtUtil.createToken(
+        // Access token 및 refresh token 생성
+        String accessToken = jwtUtil.createAccessToken(
                 user.getUserId(),
                 user.getNickname(),
                 user.getEmail(),
-                user.getUserRole()
-        );
+                user.getUserRole());
+
+        String refreshToken = jwtUtil.createRefreshToken(
+                user.getUserId());
+
+        // Refresh Token을 DB에 저장하는 로직
+        RefreshToken refreshTokenEntity = refreshTokenRepository.findByUserId(user.getUserId())
+                .orElseGet(() -> new RefreshToken(user.getUserId(), user.getNickname(), user.getEmail(), user.getUserRole(), refreshToken));
+
+        refreshTokenRepository.save(refreshTokenEntity);
+        return new TokenResponseDto(accessToken,refreshToken);
     }
 
     //    프로필 조회  getProfile
@@ -103,10 +116,7 @@ public class UserService {
             String currentPassword = user.getPw();
             String newPassword = updateRequestDto.getNewPassword();
 
-//            비밀번호 형식 확인
-            if (!isValidPasswordFormat(newPassword)) {
-                throw new IllegalArgumentException("비밀번호 형식이 맞지 않습니다.");
-            }
+
 //            동일한 비밀번호로 변경 하는지 확인
             if (passwordEncoder.matches(newPassword, currentPassword)) {
                 throw new IllegalArgumentException("현재 패스워드와 변경하려는 패스워드가 같습니다.");
@@ -129,22 +139,7 @@ public class UserService {
                 updatedUser.getEmail());
     }
 
-    /*
-    *   패스워드 형식
-    * - 대소문자 포함 영문 + 숫자 + 특수문자를 최소 1글자씩 포함합니다.
-      - 비밀번호는 최소 8글자 이상이어야 합니다
-    */
-    private boolean isValidPasswordFormat(String pw) {
-        if (pw.length() < 8) {
-            return false;
-        }
-        boolean hasUpperCase = pw.chars().anyMatch(Character::isUpperCase);
-        boolean hasLowerCase = pw.chars().anyMatch(Character::isLowerCase);
-        boolean hasDigit = pw.chars().anyMatch(Character::isDigit);
-        boolean hasSpecialChar = pw.chars().anyMatch(ch -> "!@#$%^&*()-+=<>?~".indexOf(ch) >= 0);
 
-        return hasUpperCase && hasLowerCase && hasDigit && hasSpecialChar;
-    }
 
     @Transactional
     public void deleteUser(Long userId, AuthUser user) {

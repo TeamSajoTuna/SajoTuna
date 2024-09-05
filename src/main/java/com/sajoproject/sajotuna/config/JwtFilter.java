@@ -40,7 +40,7 @@ public class JwtFilter implements Filter {
         String method = httpRequest.getMethod();
 
 
-        if (url.startsWith("/users/signup") || url.startsWith("/users/signin")) {
+        if (url.startsWith("/users/signup") || url.startsWith("/users/signin")|| url.startsWith("/token/refresh")){
             chain.doFilter(request, response);
             return;
         }
@@ -68,7 +68,7 @@ public class JwtFilter implements Filter {
             request.setAttribute("userRole",claims.get("userRole",String.class));
 
             // 관리자 권한이 필요한 경로 설정
-            List<String> allowedMethods = Arrays.asList("PUT", "DELETE");
+            List<String> allowedMethods = Arrays.asList("DELETE");
             String pathPrefix = "/users/";
 
             // 경로와 메서드 체크 및 관리자 권한이 필요한 경로인지 확인 -> 권한 X 일 경우 403 리턴

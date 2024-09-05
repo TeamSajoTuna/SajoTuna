@@ -26,10 +26,8 @@ public class CommentController {
 
     // 댓글 생성 : content, feedId, userId 필요
     @PostMapping
-    public ResponseEntity<PostCommentDtoResponse> postComment(
-            @RequestBody PostCommentDtoRequest reqDto){
-        System.out.println("reqDto = "+ reqDto);
-
+    public ResponseEntity<PostCommentDtoResponse> postComment(@RequestBody PostCommentDtoRequest reqDto, @Auth AuthUser authUser){
+        reqDto.setUserId(authUser.getId());
         PostCommentDtoResponse resDto = commentService.postComment(reqDto);
         return ResponseEntity.ok().body(resDto);
     }
@@ -38,7 +36,6 @@ public class CommentController {
     public ResponseEntity<List<GetCommentFromFeedDtoResponse>> getCommentFromFeed(
             @RequestBody GetCommentFromFeedDtoRequest reqDto){
         System.out.println("reqDto.getFeedId() = " + reqDto.getFeedId());
-
         List<GetCommentFromFeedDtoResponse> resDto = commentService.getCommentFromFeed(reqDto);
         return ResponseEntity.ok().body(resDto);
 

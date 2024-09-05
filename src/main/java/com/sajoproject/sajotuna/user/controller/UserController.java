@@ -5,6 +5,7 @@ package com.sajoproject.sajotuna.user.controller;
 import com.sajoproject.sajotuna.annotation.Auth;
 import com.sajoproject.sajotuna.config.JwtUtil;
 import com.sajoproject.sajotuna.exception.MethodArgumentNotValid;
+import com.sajoproject.sajotuna.user.dto.TokenResponseDto;
 import com.sajoproject.sajotuna.user.dto.authUserDto.AuthUser;
 import com.sajoproject.sajotuna.user.dto.userDeleteDto.DeleteResponseDto;
 import com.sajoproject.sajotuna.user.dto.userGetProfileDto.GetProfileResponseDto;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 
+
 import org.springframework.web.bind.annotation.RestController;
 
 
@@ -33,38 +35,47 @@ public class UserController {
 
     @PostMapping("/users/signup")
     public ResponseEntity<String> signup(@Valid @RequestBody SignupRequestDto requestDto) {
-            String bearerToken = userService.signup(requestDto);
-            return ResponseEntity.ok().header("Authorization", bearerToken).body(requestDto.toString());
+            userService.signup(requestDto);
+            return ResponseEntity.ok().header("Authorization").body("회원가입 성공");
     }
 
     @PostMapping("/users/signin")
     public ResponseEntity<Void> signIn(@RequestBody SigninRequestDto requestDto){
-        String bearerToken = userService.signIn(requestDto);
+        TokenResponseDto tokenResponseDto = userService.signIn(requestDto);
         // Access Token(Authorization) 토큰 헤더에 추가
-        return ResponseEntity.ok().header("Authorization", bearerToken).build();
+        return ResponseEntity.ok()
+                .header("Authorization", tokenResponseDto.getAccessToken())
+                .header("RefreshToken", tokenResponseDto.getRefreshToken())
+                .build();
     }
 
-    // 프로필 조회
+//      프로필 조회
     @GetMapping("/users/{userId}")
-    public  ResponseEntity<GetProfileResponseDto> getProfile(@PathVariable Long userId, HttpServletRequest request) {
+    public  ResponseEntity<GetProfileResponseDto> getProfile(
+            @PathVariable Long userId,
+            @Auth AuthUser authUser) {
+
 //        JWT 토큰 추출 , 현재 사용자 ID 추출
-        String bearerToken = request.getHeader("Authorization");
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            String token = bearerToken.substring(7);
-            String currentUserId = jwtUtil.getUserId(token);
+//        String bearerToken = request.getHeader("Authorization");
+//        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+//            String token = bearerToken.substring(7);
+//            String currentUserId = jwtUtil.getUserId(token);
 
 //           조회하는 프로필이  본인의 프로필인지 확인
-            boolean isOwnProfile = currentUserId.equals(userId.toString());
+            boolean isOwnProfile = authUser.getId().equals(userId);
 //            프로필 정보 조회
             GetProfileResponseDto userProfile = userService.getProfile(userId, isOwnProfile);
             return ResponseEntity.ok(userProfile);
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-    }
+//        else {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+//        }
+
     // 프로필 수정
     @PutMapping("/users/{userId}")
-    public ResponseEntity<UpdateResponseDto> updateProfile(@PathVariable Long userId, @RequestBody UpdateRequestDto updateRequestDto){
+    public ResponseEntity<UpdateResponseDto> updateProfile(
+            @PathVariable Long userId,
+            @Valid @RequestBody UpdateRequestDto updateRequestDto){
         return ResponseEntity.ok(userService.updateProfile(userId,updateRequestDto));
     }
 
