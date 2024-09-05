@@ -37,7 +37,7 @@ public class UserService {
 
     // Signup
     @Transactional
-    public String signup(SignupRequestDto signupRequestDto) {
+    public void signup(SignupRequestDto signupRequestDto) {
         if (userRepository.existsByEmail(signupRequestDto.getEmail())) {
             throw new Conflict("중복된 이메일입니다.");
         }
@@ -49,8 +49,7 @@ public class UserService {
                 encodedPassword,
                 userRole
         );
-        User savedUser = userRepository.save(newUser);
-        return jwtUtil.createAccessToken(savedUser.getUserId(), savedUser.getNickname(), savedUser.getEmail(), savedUser.getUserRole());
+        userRepository.save(newUser);
     }
 
 
@@ -82,7 +81,9 @@ public class UserService {
                 user.getUserId());
 
         // Refresh Token을 DB에 저장하는 로직
-        RefreshToken refreshTokenEntity = new RefreshToken(user.getUserId(), user.getNickname(), user.getEmail(), user.getUserRole(), refreshToken);
+        RefreshToken refreshTokenEntity = refreshTokenRepository.findByUserId(user.getUserId())
+                .orElseGet(() -> new RefreshToken(user.getUserId(), user.getNickname(), user.getEmail(), user.getUserRole(), refreshToken));
+
         refreshTokenRepository.save(refreshTokenEntity);
         return new TokenResponseDto(accessToken,refreshToken);
     }

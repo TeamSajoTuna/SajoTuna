@@ -35,8 +35,8 @@ public class UserController {
 
     @PostMapping("/users/signup")
     public ResponseEntity<String> signup(@Valid @RequestBody SignupRequestDto requestDto) {
-            String bearerToken = userService.signup(requestDto);
-            return ResponseEntity.ok().header("Authorization", bearerToken).body(requestDto.toString());
+            userService.signup(requestDto);
+            return ResponseEntity.ok().header("Authorization").body("회원가입 성공");
     }
 
     @PostMapping("/users/signin")
