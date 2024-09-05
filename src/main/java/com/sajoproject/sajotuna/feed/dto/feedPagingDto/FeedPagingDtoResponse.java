@@ -17,6 +17,8 @@ public class FeedPagingDtoResponse {
     private String content;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
+    private Long likeCount;
+
 //    private List<Comment> commentList;
 
     public FeedPagingDtoResponse(Feed feed){
@@ -29,6 +31,8 @@ public class FeedPagingDtoResponse {
 //        comments=feed.getComment();
 //        this.commentList=comments;
     }
-
+    public void setLikeCount(Long likeCount){
+        this.likeCount=likeCount;
+    }
 
 }
