@@ -8,8 +8,11 @@ import com.sajoproject.sajotuna.comment.dto.postCommentDto.PostCommentDtoRequest
 import com.sajoproject.sajotuna.comment.dto.postCommentDto.PostCommentDtoResponse;
 import com.sajoproject.sajotuna.comment.entity.Comment;
 import com.sajoproject.sajotuna.comment.repository.CommentRepository;
+import com.sajoproject.sajotuna.user.entity.User;
+import com.sajoproject.sajotuna.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,7 +22,9 @@ import java.util.stream.Collectors;
 public class CommentService {
 
     private final CommentRepository commentRepository;
+    private final UserRepository userRepository;
 
+    @Transactional
     public PostCommentDtoResponse postComment(PostCommentDtoRequest reqDto){
 
         Comment comment = new Comment(reqDto);
@@ -37,12 +42,18 @@ public class CommentService {
 
     }
 
-    public CommentUpdateResponseDto commentUpdate(Long id, CommentUpdateRequestDto requestDto) {
+    // 댓글 수정
+    @Transactional
+    public CommentUpdateResponseDto commentUpdate(
+            Long id, CommentUpdateRequestDto requestDto, Long currentUserId) {
         Comment comment = commentRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("ID의 댓글을 찾을 수 없습니다. : " + id));
 
-        comment.update(requestDto);
+        if (!comment.getUser().getUserId().equals(currentUserId)) {
+            throw new IllegalArgumentException("댓글 수정 권한이 없습니다.");
+        }
 
+        comment.update(requestDto);
         Comment updatedComment = commentRepository.save(comment);
 
         CommentUpdateResponseDto responseDto = new CommentUpdateResponseDto(
@@ -54,9 +65,15 @@ public class CommentService {
         return responseDto;
     }
 
-    public void commentDelete(Long id) {
+    // 댓글 삭제
+    @Transactional
+    public void commentDelete(Long id, Long currentUserId) {
         Comment comment = commentRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("ID의 댓글을 찾을 수 없습니다. : " + id));
+
+        if (!comment.getUser().getUserId().equals(currentUserId)) {
+            throw new IllegalArgumentException("댓글 삭제 권한이 없습니다.");
+        }
 
         commentRepository.delete(comment);
     }
