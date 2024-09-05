@@ -40,17 +40,25 @@ public class Feed extends Timestamped {
     @OneToMany(mappedBy = "feed", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comment = new ArrayList<>();
 
+    // 조회수 필드
+    @Column(name = "view_count", nullable = false)
+    private int viewCount=0;
+
+
     @OneToMany(mappedBy = "feed", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Likes> likes = new ArrayList<>();
 
 
     // feedCreate 메서드에 사용
-    public Feed(FeedCreateDtoRequest requestDto) {
+    public Feed(FeedCreateDtoRequest requestDto, User user) {
         this.title = requestDto.getTitle();
         this.content = requestDto.getContent();
-        User user = new User();
-        user.setUserId(requestDto.getUserId()); // User 객체의 ID 설정
-        this.user = user;
+        this.user = user; // User 객체 설정
+    }
+
+    public void feedUpdate(String title, String content) {
+        this.title = title;
+        this.content = content;
     }
 
     public Feed(Long feedId) {
