@@ -10,5 +10,7 @@ import java.util.List;
 public interface FeedRepository extends JpaRepository<Feed, Long> {
 //    List<Feed> findByUser_UserIdInOrderByModifiedAtDesc(List<Long> userIds);
 Page<Feed> findByUser_UserIdInOrderByModifiedAtDesc(List<Long> userIds, Pageable pageable);
+Page<Feed> findByUser_UserIdInAndIsDeletedFalseOrderByModifiedAtDesc(List<Long> userIds, Pageable pageable);
+
 
 }
