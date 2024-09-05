@@ -57,9 +57,6 @@ public class User extends Timestamped {
     @OneToMany(mappedBy = "senderId", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Message> senderId = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Likes> likes = new ArrayList<>();
-
     public User(String nickname, String email, String pw, UserRole userRole) {
         this.nickname = nickname;
         this.email = email;

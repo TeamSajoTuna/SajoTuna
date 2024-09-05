@@ -32,6 +32,8 @@ public class Feed extends Timestamped {
     @Column(name = "content")
     private String content;
 
+    @Column(nullable = false)
+    private Boolean isDeleted = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)

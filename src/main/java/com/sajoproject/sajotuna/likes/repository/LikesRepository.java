@@ -10,5 +10,7 @@ import java.util.Optional;
 public interface LikesRepository extends JpaRepository<Likes, Long> {
     boolean existsByUserAndFeed(User user, Feed feed);
     Optional<Likes> findByFeedAndUser(Feed feed, User user);
+//    추가
+    long countByFeed(Feed feed);
 
 }
