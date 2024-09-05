@@ -4,12 +4,16 @@ import com.sajoproject.sajotuna.exception.BadRequestException;
 import com.sajoproject.sajotuna.message.dto.createMessageDto.CreateMessageDtoRequest;
 import com.sajoproject.sajotuna.message.dto.createMessageDto.CreateMessageDtoResponse;
 import com.sajoproject.sajotuna.message.dto.deleteMessageDto.DeleteMessageDtoRequest;
+import com.sajoproject.sajotuna.message.dto.getRecievedBoxDto.GetReceivedBoxDtoResponse;
 import com.sajoproject.sajotuna.message.entity.Message;
 import com.sajoproject.sajotuna.message.repository.MessageRepository;
 import com.sajoproject.sajotuna.user.dto.authUserDto.AuthUser;
 import com.sajoproject.sajotuna.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +39,11 @@ public class MessageService {
         messageRepository.save(deleteMessage);
 
 
+    }
+
+    public List<GetReceivedBoxDtoResponse> getReceivedBox(Long id){
+        List<Message> messageList = messageRepository.findByReceiverId_UserIdAndIsDeleted(id,false);
+        return messageList.stream().map(GetReceivedBoxDtoResponse::new).toList();
     }
 
 }
