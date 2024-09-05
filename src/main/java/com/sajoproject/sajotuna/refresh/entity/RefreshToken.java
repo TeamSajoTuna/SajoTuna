@@ -16,7 +16,9 @@ public class RefreshToken extends Timestamped {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true)
     private Long userId;
+
     private String token;
 
     private String nickName;

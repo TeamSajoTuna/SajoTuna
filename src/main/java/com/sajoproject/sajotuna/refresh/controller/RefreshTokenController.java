@@ -14,7 +14,7 @@ public class RefreshTokenController {
     private final RefreshTokenService refreshTokenService;
 
     @PostMapping("/token/refresh")
-    public ResponseEntity<Void> refreshAccessToken(@RequestHeader("RefreshToken")String refreshToken){
+    public ResponseEntity<Void> refreshAccessToken(@RequestHeader("RefreshToken") String refreshToken){
         TokenResponseDto tokenResponseDto = refreshTokenService.refreshAccessToken(refreshToken);
         return ResponseEntity.ok()
                 .header("Authorization", tokenResponseDto.getAccessToken())
