@@ -82,7 +82,7 @@ public class UserService {
 
         // Refresh Token을 DB에 저장하는 로직
         RefreshToken refreshTokenEntity = refreshTokenRepository.findByUserId(user.getUserId())
-                .orElseGet(() -> new RefreshToken(user.getUserId(), user.getNickname(), user.getEmail(), user.getUserRole(), refreshToken));
+                .orElseGet(() ->new RefreshToken(user.getUserId(), user.getNickname(), user.getEmail(), user.getUserRole(), refreshToken));
 
         refreshTokenRepository.save(refreshTokenEntity);
         return new TokenResponseDto(accessToken,refreshToken);
@@ -144,9 +144,8 @@ public class UserService {
     @Transactional
     public void deleteUser(Long userId, AuthUser user) {
         // 권한 검증 후 userId 찾기
-        log.debug("=================================={}",user.getUserRole());
         User userToDelete = userRepository.findById(userId).orElseThrow(() ->
-                new UserNotFoundException("not found user"));;
+                new UserNotFoundException("not found user"));
 
         // ADMIN 권한을 가진 사용자인 경우에만 삭제 가능
         if (!UserRole.ADMIN.name().equalsIgnoreCase(user.getUserRole())) {
