@@ -1,6 +1,7 @@
 package com.sajoproject.sajotuna.feed.service;
 
 import com.sajoproject.sajotuna.exception.BadRequestException;
+import com.sajoproject.sajotuna.exception.MethodNotAllowed;
 import com.sajoproject.sajotuna.feed.dto.feedCreateDto.FeedCreateDtoRequest;
 import com.sajoproject.sajotuna.feed.dto.feedCreateDto.FeedCreateDtoResponse;
 import com.sajoproject.sajotuna.feed.dto.feedGetFeedByIdDto.FeedGetFeedByIdDtoResponse;
@@ -43,11 +44,25 @@ public class FeedService {
         if (feed.getUser() ==null){
             throw new BadRequestException("Feed 객체의 User 정보가 없습니다.");
         }
+
+        if (feed.getIsDeleted()){
+            throw new MethodNotAllowed("게시물이 삭제되어 조회가 불가능 합니다.");
+        }
+
         feed.setViewCount(feed.getViewCount()+1);
 
         FeedGetFeedByIdDtoResponse resFeed = new FeedGetFeedByIdDtoResponse(feed);
         return resFeed;
     }
+
+//    @Transactional
+//    public FeedGetFeedByIdIsAdminResponseDto getFeedByIdIsAdmin(Long id){
+//        Feed feed = feedRepository.findById(id).orElseThrow(() -> new BadRequestException("존재하지 않는 feed_id"));
+//        if (feed.getUser() ==null){
+//            throw new BadRequestException("Feed 객체의 User 정보가 없습니다.");
+//        }
+//
+//    }
 
 
     @Transactional
@@ -63,7 +78,7 @@ public class FeedService {
                 .collect(Collectors.toList());
 
         // 3. followed_id에 해당하는 피드 리스트를 modifiedAt 기준으로 정렬하여 조회
-        Page<Feed> feeds = feedRepository.findByUser_UserIdInOrderByModifiedAtDesc(followedIds, pageable);
+        Page<Feed> feeds = feedRepository.findByUser_UserIdInAndIsDeletedFalseOrderByModifiedAtDesc(followedIds, pageable);
 
         // 4. Feed 리스트를 PagingFeedDto로 변환하여 반환
         return feeds.map(FeedPagingDtoResponse::new);
@@ -89,6 +104,10 @@ public class FeedService {
         Feed feed = feedRepository.findById(feedId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 ID의 게시물을 찾을 수 없습니다" + feedId));
 
+        if (feed.getIsDeleted()){
+            throw new MethodNotAllowed("이미 삭제된 게시물 입니다.");
+        }
+
         if (!feed.getUser().getUserId().equals(currentUserId)) {
             throw new IllegalArgumentException("게시물 수정 권한이 없습니다.");
         }
@@ -113,7 +132,9 @@ public class FeedService {
         if (!feed.getUser().getUserId().equals(currentUserId)) {
             throw new IllegalArgumentException("게시물 삭제 권한이 없습니다.");
         }
-        feedRepository.delete(feed);
+
+        feed.setIsDeleted(true);
+        feedRepository.save(feed);
     }
 //   인기게시물 좋아요
     @Transactional(readOnly = true)

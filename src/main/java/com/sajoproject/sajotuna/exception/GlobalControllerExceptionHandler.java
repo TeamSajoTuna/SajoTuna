@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,6 +26,11 @@ public class GlobalControllerExceptionHandler {
     @ExceptionHandler(ForbiddenException.class)
     public ResponseEntity<String> ForbiddenException(ForbiddenException ex) {
         return ResponseEntity.status(403).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(MethodNotAllowed.class)
+    public ResponseEntity<String> ForbiddenException(MethodNotAllowed ex) {
+        return ResponseEntity.status(405).body(ex.getMessage());
     }
 
 

@@ -22,7 +22,7 @@ import java.util.Date;
 public class JwtUtil {
 
     private static final String BEARER_PREFIX = "Bearer ";
-    private static final long ACCESS_TOKEN_TIME = 10 * 1000L; // 10초
+    private static final long ACCESS_TOKEN_TIME = 3 * 24 * 60 * 60 * 1000L; // 10초
     private static final long REFRESH_TOKEN_TIME = 7 * 24 * 60 * 60 * 1000L;  // 7일
 
     @Value("${jwt.secret.key}")
