@@ -47,9 +47,7 @@ public class Feed extends Timestamped {
     // 조회수 필드
     @Column(name = "view_count", nullable = false)
     private int viewCount=0;
-    
-  
-    // feedCreate 메서드에 사용
+
     public Feed(FeedCreateDtoRequest requestDto, User user) {
         this.title = requestDto.getTitle();
         this.content = requestDto.getContent();
