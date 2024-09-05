@@ -46,7 +46,6 @@ public class FeedController {
 
     }
 
-
     //게시물 생성 - request로 title, content 필요
     @PostMapping
     public ResponseEntity<FeedCreateDtoResponse> feedCreate(
@@ -85,8 +84,9 @@ public class FeedController {
         List<FeedPagingDtoResponse> top10Feeds = feedService.getTop10Feeds();
         return ResponseEntity.ok(top10Feeds);
     }
-//  모든 게시물 좋아요 개수 카운트
-    @GetMapping("/likecount")
+
+    // 한 게시물의 총 좋아요 개수 카운트
+    @GetMapping("/likescount")
     public ResponseEntity<FeedLikeCountResponseDto> getLikeCountByFeedId(@RequestBody FeedLikeCountRequestDto requestDto) {
     FeedLikeCountResponseDto feedLikeCountDto = feedService.getLikeCountByFeedId(requestDto.getFeedId());
     return ResponseEntity.ok(feedLikeCountDto);

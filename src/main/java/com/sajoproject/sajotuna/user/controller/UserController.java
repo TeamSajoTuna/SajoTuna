@@ -1,10 +1,8 @@
 package com.sajoproject.sajotuna.user.controller;
 
 
-
 import com.sajoproject.sajotuna.annotation.Auth;
 import com.sajoproject.sajotuna.config.JwtUtil;
-import com.sajoproject.sajotuna.exception.MethodArgumentNotValid;
 import com.sajoproject.sajotuna.user.dto.TokenResponseDto;
 import com.sajoproject.sajotuna.user.dto.authUserDto.AuthUser;
 import com.sajoproject.sajotuna.user.dto.userDeleteDto.DeleteResponseDto;
@@ -14,17 +12,10 @@ import com.sajoproject.sajotuna.user.dto.userSignupDto.SignupRequestDto;
 import com.sajoproject.sajotuna.user.dto.userUpdateProfileDto.UpdateRequestDto;
 import com.sajoproject.sajotuna.user.dto.userUpdateProfileDto.UpdateResponseDto;
 import com.sajoproject.sajotuna.user.service.UserService;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-
-
-
-import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
@@ -54,22 +45,12 @@ public class UserController {
     public  ResponseEntity<GetProfileResponseDto> getProfile(
             @PathVariable Long userId,
             @Auth AuthUser authUser) {
-
-//        JWT 토큰 추출 , 현재 사용자 ID 추출
-//        String bearerToken = request.getHeader("Authorization");
-//        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-//            String token = bearerToken.substring(7);
-//            String currentUserId = jwtUtil.getUserId(token);
-
 //           조회하는 프로필이  본인의 프로필인지 확인
             boolean isOwnProfile = authUser.getId().equals(userId);
 //            프로필 정보 조회
             GetProfileResponseDto userProfile = userService.getProfile(userId, isOwnProfile);
             return ResponseEntity.ok(userProfile);
         }
-//        else {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-//        }
 
     // 프로필 수정
     @PutMapping("/users/{userId}")
