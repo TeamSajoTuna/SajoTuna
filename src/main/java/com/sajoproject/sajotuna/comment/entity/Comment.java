@@ -1,6 +1,5 @@
 package com.sajoproject.sajotuna.comment.entity;
 
-
 import com.sajoproject.sajotuna.comment.dto.commentUpdateDto.CommentUpdateRequestDto;
 import com.sajoproject.sajotuna.comment.dto.postCommentDto.PostCommentDtoRequest;
 import com.sajoproject.sajotuna.feed.entity.Feed;
@@ -34,30 +33,15 @@ public class Comment extends Timestamped {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-//    @ManyToOne (fetch = FetchType.LAZY)
-//    @JoinColumn(name = "parent_comment_id")
-//    private Comment parentComment;
-//
-//    @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<Comment> childComments = new ArrayList<>();
-//
-//    public Comment(PostCommentDtoRequest requestDto, User user, Feed feed) {
-//        this.content = requestDto.getContent();
-//        this.feed = feed;
-//        this.user = user;
-//    }
-//
-//    public Comment(PostCommentDtoRequest requestDto, User  user, Feed feed,Comment parentComment) {
-//        this.content = requestDto.getContent();
-//        this.feed = feed;
-//        this.user = user;
-//        this.parentComment = parentComment;
-//    }
+    @OneToMany(mappedBy = "replyComment", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Comment> replies = new ArrayList<>();
 
-    // 이부분 확인
-    public Comment(PostCommentDtoRequest reqDto){
+    @ManyToOne (fetch = FetchType.LAZY)
+    @JoinColumn(name = "reply_comment_id")
+    private Comment replyComment;
+
+    public Comment(PostCommentDtoRequest reqDto, Comment replyComment){
         this.content=reqDto.getContent();
-
         Feed newfeed = new Feed();
         newfeed.setFeedId(reqDto.getFeedId());
         User newuser = new User();
@@ -65,6 +49,7 @@ public class Comment extends Timestamped {
 
         this.feed=newfeed;
         this.user=newuser;
+        this.replyComment = replyComment;
     }
 
     public void update(CommentUpdateRequestDto requestDto) {

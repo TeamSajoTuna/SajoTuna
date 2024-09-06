@@ -22,6 +22,8 @@ import com.sajoproject.sajotuna.user.dto.userUpdateProfileDto.UpdateRequestDto;
 import com.sajoproject.sajotuna.user.dto.userUpdateProfileDto.UpdateResponseDto;
 import com.sajoproject.sajotuna.user.entity.User;
 import com.sajoproject.sajotuna.user.repository.UserRepository;
+import io.jsonwebtoken.Claims;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

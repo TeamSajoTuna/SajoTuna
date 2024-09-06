@@ -14,6 +14,7 @@ public class PostCommentDtoResponse {
     private String content;
     private Long feedId;
     private Long userId;
+    private Long replyCommentId;
     private LocalDateTime createdAt;
     private LocalDateTime modifiedAt;
 
@@ -22,9 +23,9 @@ public class PostCommentDtoResponse {
         this.content=comment.getContent();
         this.feedId=comment.getFeed().getFeedId();
         this.userId=comment.getUser().getUserId();
+        this.replyCommentId=(comment.getReplyComment() !=null) ? comment.getReplyComment().getCommentId() : null;
         this.createdAt=comment.getCreatedAt();
         this.modifiedAt=comment.getModifiedAt();
-
     }
 
 }

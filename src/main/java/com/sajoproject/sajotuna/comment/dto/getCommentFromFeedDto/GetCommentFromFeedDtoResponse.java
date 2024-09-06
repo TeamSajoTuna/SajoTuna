@@ -15,6 +15,7 @@ public class GetCommentFromFeedDtoResponse {
     String content;
     Long feedId;
     Long userId;
+    Long replyCommentId;
 
     public GetCommentFromFeedDtoResponse(Comment comment){
         this.commentId=comment.getCommentId();
@@ -23,6 +24,6 @@ public class GetCommentFromFeedDtoResponse {
         this.content=comment.getContent();
         this.feedId=comment.getFeed().getFeedId();
         this.userId=comment.getUser().getUserId();
-
+        this.replyCommentId = (comment.getReplyComment() !=null) ? comment.getReplyComment().getCommentId() : null;
     }
 }

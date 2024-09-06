@@ -3,6 +3,7 @@ package com.sajoproject.sajotuna.user.controller;
 
 import com.sajoproject.sajotuna.annotation.Auth;
 import com.sajoproject.sajotuna.config.JwtUtil;
+import com.sajoproject.sajotuna.exception.MethodArgumentNotValid;
 import com.sajoproject.sajotuna.user.dto.TokenResponseDto;
 import com.sajoproject.sajotuna.user.dto.authUserDto.AuthUser;
 import com.sajoproject.sajotuna.user.dto.userDeleteDto.DeleteResponseDto;
@@ -12,10 +13,17 @@ import com.sajoproject.sajotuna.user.dto.userSignupDto.SignupRequestDto;
 import com.sajoproject.sajotuna.user.dto.userUpdateProfileDto.UpdateRequestDto;
 import com.sajoproject.sajotuna.user.dto.userUpdateProfileDto.UpdateResponseDto;
 import com.sajoproject.sajotuna.user.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+
+
+
+import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController

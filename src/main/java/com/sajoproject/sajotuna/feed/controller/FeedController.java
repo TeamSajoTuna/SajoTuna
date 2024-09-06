@@ -12,10 +12,13 @@ import com.sajoproject.sajotuna.feed.dto.feedUpdatdDto.FeedUpdateRequestDto;
 import com.sajoproject.sajotuna.feed.dto.feedUpdatdDto.FeedUpdateResponseDto;
 import com.sajoproject.sajotuna.feed.service.FeedService;
 import com.sajoproject.sajotuna.user.dto.authUserDto.AuthUser;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -39,8 +42,8 @@ public class FeedController {
             @RequestParam(required = false, defaultValue = "0") int page,  // 기본 페이지 번호는 0
             @RequestParam(required = false, defaultValue = "10") int size,  // 기본 페이지 크기는 10
             @Auth AuthUser authUser
-    ) {
-        Page<FeedPagingDtoResponse> pagingFeed = feedService.getFeedPaging(page, size, authUser.getId());
+            ) {
+        Page<FeedPagingDtoResponse> pagingFeed = feedService.getFeedPaging(page,size, authUser.getId());
 
         return pagingFeed;
 
@@ -51,7 +54,7 @@ public class FeedController {
     public ResponseEntity<FeedCreateDtoResponse> feedCreate(
             @RequestBody FeedCreateDtoRequest requestDto,
             @Auth AuthUser authUser) {
-        FeedCreateDtoResponse responseDto = feedService.feedCreate(requestDto, authUser.getId());
+        FeedCreateDtoResponse responseDto = feedService.feedCreate(requestDto,authUser.getId());
         return ResponseEntity.ok(responseDto);
     }
 

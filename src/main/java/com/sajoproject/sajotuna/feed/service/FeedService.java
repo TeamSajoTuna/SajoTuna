@@ -55,15 +55,6 @@ public class FeedService {
         return resFeed;
     }
 
-//    @Transactional
-//    public FeedGetFeedByIdIsAdminResponseDto getFeedByIdIsAdmin(Long id){
-//        Feed feed = feedRepository.findById(id).orElseThrow(() -> new BadRequestException("존재하지 않는 feed_id"));
-//        if (feed.getUser() ==null){
-//            throw new BadRequestException("Feed 객체의 User 정보가 없습니다.");
-//        }
-//
-//    }
-
 
     @Transactional
     public Page<FeedPagingDtoResponse> getFeedPaging(int page, int size, Long userId) {
