@@ -5,6 +5,8 @@ import com.sajoproject.sajotuna.feed.dto.feedCreateDto.FeedCreateDtoRequest;
 import com.sajoproject.sajotuna.feed.dto.feedCreateDto.FeedCreateDtoResponse;
 import com.sajoproject.sajotuna.feed.dto.feedDeleteDto.FeedDeleteResponseDto;
 import com.sajoproject.sajotuna.feed.dto.feedGetFeedByIdDto.FeedGetFeedByIdDtoResponse;
+import com.sajoproject.sajotuna.feed.dto.feedLikeDto.FeedLikeCountRequestDto;
+import com.sajoproject.sajotuna.feed.dto.feedLikeDto.FeedLikeCountResponseDto;
 import com.sajoproject.sajotuna.feed.dto.feedPagingDto.FeedPagingDtoResponse;
 import com.sajoproject.sajotuna.feed.dto.feedUpdatdDto.FeedUpdateRequestDto;
 import com.sajoproject.sajotuna.feed.dto.feedUpdatdDto.FeedUpdateResponseDto;
@@ -17,6 +19,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/feed")
@@ -42,7 +46,6 @@ public class FeedController {
         Page<FeedPagingDtoResponse> pagingFeed = feedService.getFeedPaging(page,size, authUser.getId());
 
         return pagingFeed;
-
 
     }
 
