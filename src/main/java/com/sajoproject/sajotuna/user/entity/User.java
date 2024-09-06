@@ -3,6 +3,7 @@ package com.sajoproject.sajotuna.user.entity;
 import com.sajoproject.sajotuna.feed.entity.Feed;
 import com.sajoproject.sajotuna.common.Timestamped;
 import com.sajoproject.sajotuna.enums.UserRole;
+import com.sajoproject.sajotuna.feed.entity.Feed;
 import com.sajoproject.sajotuna.following.entity.Follow;
 import com.sajoproject.sajotuna.likes.entity.Likes;
 import com.sajoproject.sajotuna.message.entity.Message;
@@ -59,7 +60,6 @@ public class User extends Timestamped {
 
     @OneToMany(mappedBy = "senderId", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Message> senderId = new ArrayList<>();
-
 
     public User(String nickname, String email, String pw, UserRole userRole) {
         this.nickname = nickname;

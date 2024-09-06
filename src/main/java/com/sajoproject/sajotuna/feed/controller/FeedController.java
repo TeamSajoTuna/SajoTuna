@@ -77,4 +77,18 @@ public class FeedController {
         return ResponseEntity.ok(responseDto);
 
     }
+
+    //    인기 게시물
+    @GetMapping("/top-feeds")
+    public ResponseEntity<List<FeedPagingDtoResponse>> getTop10Feeds() {
+        List<FeedPagingDtoResponse> top10Feeds = feedService.getTop10Feeds();
+        return ResponseEntity.ok(top10Feeds);
+    }
+
+    // 한 게시물의 총 좋아요 개수 카운트
+    @GetMapping("/likescount")
+    public ResponseEntity<FeedLikeCountResponseDto> getLikeCountByFeedId(@RequestBody FeedLikeCountRequestDto requestDto) {
+    FeedLikeCountResponseDto feedLikeCountDto = feedService.getLikeCountByFeedId(requestDto.getFeedId());
+    return ResponseEntity.ok(feedLikeCountDto);
+    }
 }

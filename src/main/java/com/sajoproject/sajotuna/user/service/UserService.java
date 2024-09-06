@@ -7,6 +7,10 @@ import com.sajoproject.sajotuna.exception.Conflict;
 import com.sajoproject.sajotuna.exception.Forbidden;
 import com.sajoproject.sajotuna.exception.UnAuthorized;
 import com.sajoproject.sajotuna.exception.UserNotFoundException;
+import com.sajoproject.sajotuna.feed.dto.feedLikeDto.FeedLikeCountResponseDto;
+import com.sajoproject.sajotuna.feed.entity.Feed;
+import com.sajoproject.sajotuna.feed.repository.FeedRepository;
+import com.sajoproject.sajotuna.feed.service.FeedService;
 import com.sajoproject.sajotuna.refresh.entity.RefreshToken;
 import com.sajoproject.sajotuna.refresh.repository.RefreshTokenRepository;
 import com.sajoproject.sajotuna.user.dto.TokenResponseDto;
@@ -25,6 +29,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -34,6 +40,8 @@ public class UserService {
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final FeedRepository feedRepository;
+    private final FeedService feedService;
 
     // Signup
     @Transactional
@@ -82,26 +90,33 @@ public class UserService {
 
         // Refresh Token을 DB에 저장하는 로직
         RefreshToken refreshTokenEntity = refreshTokenRepository.findByUserId(user.getUserId())
-                .orElseGet(() -> new RefreshToken(user.getUserId(), user.getNickname(), user.getEmail(), user.getUserRole(), refreshToken));
+                .orElseGet(() ->new RefreshToken(user.getUserId(), user.getNickname(), user.getEmail(), user.getUserRole(), refreshToken));
 
         refreshTokenRepository.save(refreshTokenEntity);
         return new TokenResponseDto(accessToken,refreshToken);
     }
 
-    //    프로필 조회  getProfile
+    // 프로필 조회  getProfile
+    // 자신이 작성한 피드의 총 좋아요 갯수로 인한 등급 포함
+    @Transactional
     public GetProfileResponseDto getProfile(Long userId, boolean isOwnProfile) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new NullPointerException("not found userId"));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NullPointerException("not found userId"));
 
-//       본인 프로필이면 Id, 닉네임, 이메일 반환, 아니라면 Id,닉네임만 반환
+        String grade = userGrade(userId);
+
+        //본인 프로필이면 Id, 닉네임, 이메일, 좋아요등급 반환, 아니라면 Id,닉네임만 반환
         if (isOwnProfile) {
             return new GetProfileResponseDto(
                     user.getUserId(),
                     user.getNickname(),
-                    user.getEmail());
+                    user.getEmail(),
+                    grade);
         } else {
             return new GetProfileResponseDto(
                     user.getUserId(),
                     user.getNickname(),
+                    null,
                     null);
         }
     }
@@ -144,9 +159,8 @@ public class UserService {
     @Transactional
     public void deleteUser(Long userId, AuthUser user) {
         // 권한 검증 후 userId 찾기
-        log.debug("=================================={}",user.getUserRole());
         User userToDelete = userRepository.findById(userId).orElseThrow(() ->
-                new UserNotFoundException("not found user"));;
+                new UserNotFoundException("not found user"));
 
         // ADMIN 권한을 가진 사용자인 경우에만 삭제 가능
         if (!UserRole.ADMIN.name().equalsIgnoreCase(user.getUserRole())) {
@@ -157,5 +171,34 @@ public class UserService {
         userRepository.save(userToDelete);
     }
 
+
+    // 자신이 작성한 피드의 총 좋아요 갯수로 인한 등급 산정
+    @Transactional
+    public String userGrade(Long userId) {
+        //만약 이 유저가 작성한 피드가 없을 경우 - 기본 STAR1
+        User user = userRepository.findById(userId).orElseThrow();
+        if(!feedRepository.existsByUser(user)) {
+            return "Star1";
+        }
+
+        List<Feed> feeds = feedRepository.findByUser(user);
+        int sum = 0;
+        // FeedService의 메서드를 호출하여 좋아요 수를 가져옴
+        for (Feed feed : feeds) {
+            FeedLikeCountResponseDto likeCountDto = feedService.getLikeCountByFeedId(feed.getFeedId());
+            sum += likeCountDto.getLikeCount();
+        }
+
+        //2개 이하(0,1,2) - Star1 / 2개 초과 5개 이하(3,4,5) - Star2 / 5개 초과(6~) - Star3
+        String grade;
+        if (sum <= 2) {
+            grade = "Star1";
+        } else if (sum <= 5) {
+            grade = "Star2";
+        } else {
+            grade = "Star3";
+        }
+        return grade;
+    }
 
 }
